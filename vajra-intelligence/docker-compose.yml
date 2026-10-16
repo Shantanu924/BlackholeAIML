@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+  vajra-intelligence:
+    build: .
+    container_name: vajra-intelligence
+    ports:
+      - "8100:8100"
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+      - ./test_results:/app/test_results
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8100/intelligence/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3

@@ -1,0 +1,89 @@
+# Repository Changes Tracking Log - Deployment Hardening & UI Activation
+Task: Blockchain Deployment Hardening & Observability Support Sprint
+
+This log registers all file changes made to stabilize sequential bootstrapping, secure container networking, enable operational visibility, and prepare the BlackHole Blockchain ecosystem for TANTRA integration.
+
+---
+
+## 📁 1. Docker Compose Configurations
+
+### docker-compose.yml
+- Standardized health check query paths to `/api/health` for validator nodes.
+- Ordered follower node startups by adding `depends_on: blockchain-node-1 (condition: service_healthy)`.
+- Bound `bridge` and `wallet` startups to wait for `blockchain-node-1` health.
+- Standardized persistent volume name `blackhole-blockchain_blockchain_data` for folder-name independence.
+- Added environment variables: `DOCKER_MODE=true` to wallet; and `DOCKER_MODE=true`, `BLOCKCHAIN_API_URL=http://blackhole-node-1:8080`, `WALLET_API_URL=http://blackhole-wallet:9000` to bridge.
+- Added container-level `healthcheck` block for `wallet` service pointing to `http://localhost:9000/api/status` with optimized check intervals.
+- Added persistent named volume `wallet-go-cache` mapped to `/go` for the wallet service.
+
+### docker-compose.blockchain.yml
+- Corrected Node 1 healthcheck path to `/api/health` to match other nodes.
+- Configured volumes to map to the custom volume name `blackhole-blockchain_blockchain_data`.
+- Updated `depends_on` blocks for nodes 2, 3, 4, and 5 to require Node 1 to be healthy (`condition: service_healthy`) to ensure proper bootstrap network synchronization.
+
+### docker-compose.wallet.yml
+- Added `DOCKER_MODE=true` environment variable.
+- Added `healthcheck` block querying `/api/status` endpoint to report service health state.
+- Configured persistent named volume `wallet-go-cache` mapped to `/go` to cache downloaded dependencies.
+- Optimized healthcheck parameters (`interval: 5s`, `retries: 24`) for fast, resilient startup validation.
+
+### docker-compose.bridge.yml
+- Aligned volumes with custom named volume `blackhole-blockchain_blockchain_data`.
+- Added environment variables `DOCKER_MODE=true`, `BLOCKCHAIN_API_URL=http://blackhole-node-1:8080`, and `WALLET_API_URL=http://blackhole-wallet:9000` to allow the bridge to resolve the wallet and nodes inside the container network.
+
+---
+
+## 🐳 2. Dockerfiles & Container Entrypoints
+
+### Dockerfile (Root)
+- Corrected built-in `HEALTHCHECK` probe path from `/health` to `/api/health`.
+
+### Dockerfile.blockchain (Root)
+- Corrected built-in `HEALTHCHECK` probe path from `/health` to `/api/health`.
+- Fixed Go build target path from `./cmd/relay/main.go` to `./core/relay-chain/cmd/relay/main.go` to resolve compiler failures.
+- Installed `curl` in compiler Alpine image so docker compose health checks can run.
+
+### deploy/mainnet/Dockerfile.blockchain
+- Aligned built-in health check path (`/api/health`), corrected build compilation target path, and added `curl` dependency to match root changes.
+
+### bridge-sdk/Dockerfile.bridge & bridge-sdk/Dockerfile
+- Added `curl` installation in the final Alpine runtime stage to enable Docker daemon healthchecks to succeed.
+
+### docker/wallet-entrypoint.sh
+- Corrected line 25 blockchain node health check path from `/health` to `/api/health`, preventing the wallet from falsely falling back to offline mode when the node is healthy.
+
+---
+
+## 💻 3. Go Backend Codebases
+
+### services/wallet/main.go
+- **Resilient MongoDB Startup**: Made MongoDB Atlas connection and ping non-fatal during startup, enabling the wallet to boot in degraded mode and expose `/api/status` for observability even if MongoDB is offline or resolves incorrectly. Added `MONGO_URI` environment variable override support.
+- **Asynchronous P2P Connection**: Converted the blockchain node connection process (`ConnectToBlockchain`) to run in a background goroutine, preventing startup blocking and allowing the web server to start instantly.
+- **Auto-Discovery**: Dynamically resolves local P2P bootstrap node info from `BLOCKCHAIN_API_URL + "/api/p2p/info"` instead of hardcoded `localhost:8080`.
+- **Status Connection Tracking**: Enhanced `/api/status` to call `wallet.DefaultBlockchainClient.IsConnected()` instead of returning a hardcoded `true` check, and optimized its database ping timeout from 5s to 1s to ensure snappy diagnostics responses and prevent connection drops.
+- **Uptime Tracking**: Added global `startTime` variable to report accurate service runtime seconds in `/api/status`.
+
+### bridge-sdk/main_bridge/main.go
+- **Dynamic Helper Functions**:
+  - Declared `getBlockchainURL()` as a package-level helper function to allow access from both `BridgeSDK` methods and `BlackHoleBlockchainInterface` methods.
+  - Implemented `getWalletURL()` and `getBlockchainURL()` to retrieve URLs from environment variables (`WALLET_API_URL`, `BLOCKCHAIN_API_URL`) or fallback container host names in `DOCKER_MODE`.
+- **Endpoint Routing & Proxy Updates**:
+  - Aligned wallet connection checks in `handleWalletHealth`, `handleWalletDashboardStatus`, and `handleProxyWalletDashboardHealth` to query the correct `/api/status` path instead of non-existent `/api/health`.
+  - Refactored `handleProxyWalletDashboardWallets` and `handleProxyWalletDashboardTransactions` to call `/api/wallets` and `/api/transactions` through the dynamic helper.
+  - Aligned all occurrences of hardcoded `"http://localhost:8080"` with `getBlockchainURL()` across handlers (including `handleMainDashboardStatus`, `handleProxyMainDashboardHealth`, `handleProxyMainDashboardBlockchain`, `handleProxyMainDashboardNode`, `handleProxyMainDashboardWallets`, `handleProxyMainDashboardActivities`, `handleWalletTransactions`, `processTransactionViaHTTP`, `getStatsViaHTTP`, `verifyTargetChainTransaction`, and `checkBlackholeConnection`), enabling container-to-container connectivity.
+- **Out-of-Bounds Panic Fix**: Added safety length check when slicing wallet address keys in `handleProxyMainDashboardActivities` to prevent `slice bounds out of range` panics when processing short address strings (such as custom wallet names).
+
+---
+
+## 📜 4. Startup Automation & Verification Artifacts
+
+### start-services.ps1 & start-services.sh
+- Automated pre-flight validations (verifies Docker daemon status, scans ports `8080`, `8545`, `9000`, `8084`, `9090` for conflicts, and auto-creates `blackhole-network` bridge).
+- Structured sequented boot-loop waiting logic that polls node health state before launching dependent services.
+- Added sequenced health polling for the `wallet` service to wait for the compilation/initialization phase to finish before launching other dependents.
+
+### REVIEW_PACKET.md
+- Appended Alay's Infrastructure & Observability notes to the convergence integration package documenting P2P network aliases, start sequence parameters, and service health check URLs.
+
+### UI_STATUS_MATRIX.md (NEW)
+- Created tracking matrix auditing active port binds, backend dependencies, statuses, and blocker items for all 5 UI layers.

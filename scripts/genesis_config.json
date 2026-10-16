@@ -1,0 +1,33 @@
+{
+    "chain_id": "vajra-mainnet-1",
+    "genesis_time": "2026-08-20T00:00:00Z",
+    "native_token": "BHIV",
+    "initial_allocations": [
+        {
+            "address": "system-treasury",
+            "amount": "100000000",
+            "description": "Central Ecosystem Treasury for grants and community incentives"
+        },
+        {
+            "address": "genesis-validator-1",
+            "amount": "10000",
+            "description": "Initial Proof-of-Stake Validator 1"
+        },
+        {
+            "address": "genesis-validator-2",
+            "amount": "10000",
+            "description": "Initial Proof-of-Stake Validator 2"
+        },
+        {
+            "address": "genesis-validator-3",
+            "amount": "10000",
+            "description": "Initial Proof-of-Stake Validator 3"
+        }
+    ],
+    "bridge_contracts": {
+        "ethereum": {
+            "wBHIV": "0xTBD_MAINNET_wBHIV",
+            "USDT": "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+        }
+    }
+}

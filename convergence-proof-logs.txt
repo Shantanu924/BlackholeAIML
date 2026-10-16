@@ -1,0 +1,638 @@
+
+PS D:\Go Lang\MP\Blockchain> cd "d:\Go Lang\MP\Blockchain\blackhole-blockchain\core\relay-chain"      
+PS D:\Go Lang\MP\Blockchain\blackhole-blockchain\core\relay-chain> go run cmd/relay/main.go                                      
+🔄 Existing blockchain detected - loading from database...
+🆔 Peer ID: 12D3KooWNdwMFgsxpDamMriVVSmK2nyEvxhqn9QxrRoaVKJ2BCZt
+🚀 Your peer multiaddr:
+   /ip4/127.0.0.1/tcp/3000/p2p/12D3KooWNdwMFgsxpDamMriVVSmK2nyEvxhqn9QxrRoaVKJ2BCZt
+🤖 AI fraud detection integration initialized
+2026/05/07 19:41:10 ✅ Production Balance Cache initialized with 100MB memory limit
+2026/05/07 19:41:10 ✅ Loaded 6 accounts and 6 token interactions from database
+2026/05/07 19:41:10 ✅ Account Registry initialized with 6 accounts
+🔄 Loading existing blockchain (TokenRegistry only)...
+🔄 Loading existing blockchain - restoring token balances...
+2026/05/07 19:41:10 🔄 Loading token balances from persistent storage...
+2026/05/07 19:41:10 ✅ Loaded balance: BHX[03e2459b73c0c6522530f6b26e834d992dfc55d170bee35d0bcdc047fe0d61c25b] = 1000
+2026/05/07 19:41:10 ✅ Loaded balance: BHX[alice] = 500
+2026/05/07 19:41:10 ✅ Loaded balance: BHX[bob] = 1000
+2026/05/07 19:41:10 ✅ Loaded balance: BHX[charlie] = 300
+2026/05/07 19:41:10 ✅ Loaded balance: BHX[genesis-validator] = 1010
+2026/05/07 19:41:10 ✅ Loaded balance: BHX[node1] = 50
+2026/05/07 19:41:10 ✅ Loaded balance: BHX[node2] = 10
+2026/05/07 19:41:10 ✅ Loaded balance: BHX[system] = 19999950
+2026/05/07 19:41:10 ✅ Loaded balance: ETH[03e2459b73c0c6522530f6b26e834d992dfc55d170bee35d0bcdc047fe0d61c25b] = 10000
+2026/05/07 19:41:10 ✅ Loaded balance: ETH[system] = 1000000
+2026/05/07 19:41:10 ✅ Loaded balance: USDT[03e2459b73c0c6522530f6b26e834d992dfc55d170bee35d0bcdc047fe0d61c25b] = 50000
+2026/05/07 19:41:10 ✅ Loaded balance: USDT[system] = 10000000
+2026/05/07 19:41:10 ✅ Loaded 12 token balances from persistent storage
+2026/05/07 19:41:10 📋 ETH balances after loading:
+2026/05/07 19:41:10    03e2459b73c0c6522530f6b26e834d992dfc55d170bee35d0bcdc047fe0d61c25b: 10000
+2026/05/07 19:41:10    system: 1000000
+2026/05/07 19:41:10 📋 USDT balances after loading:
+2026/05/07 19:41:10    03e2459b73c0c6522530f6b26e834d992dfc55d170bee35d0bcdc047fe0d61c25b: 50000
+2026/05/07 19:41:10    system: 10000000
+2026/05/07 19:41:10 📋 BHX balances after loading:
+2026/05/07 19:41:10    bob: 1000
+2026/05/07 19:41:10    charlie: 300
+2026/05/07 19:41:10    genesis-validator: 1010
+2026/05/07 19:41:10    node1: 50
+2026/05/07 19:41:10    node2: 10
+2026/05/07 19:41:10    system: 19999950
+2026/05/07 19:41:10    03e2459b73c0c6522530f6b26e834d992dfc55d170bee35d0bcdc047fe0d61c25b: 1000
+2026/05/07 19:41:10    alice: 500
+🔄 Restored genesis validator with 1000 stake
+🔄 Skipping additional token minting for existing blockchain
+⚡ Slashing manager initialized and monitoring started
+2026/05/07 19:41:10 🚀 Inflation adjustment process started (interval: 1h0m0s)
+💰 Reward inflation manager initialized and started
+2026/05/07 19:41:10 🔄 Loading token balances from persistent storage...
+2026/05/07 19:41:10 ✅ Loaded balance: BHX[03e2459b73c0c6522530f6b26e834d992dfc55d170bee35d0bcdc047fe0d61c25b] = 1000
+2026/05/07 19:41:10 ✅ Loaded balance: BHX[alice] = 500
+2026/05/07 19:41:10 ✅ Loaded balance: BHX[bob] = 1000
+2026/05/07 19:41:10 ✅ Loaded balance: BHX[charlie] = 300
+2026/05/07 19:41:10 ✅ Loaded balance: BHX[genesis-validator] = 1010
+2026/05/07 19:41:10 ✅ Loaded balance: BHX[node1] = 50
+2026/05/07 19:41:10 ✅ Loaded balance: BHX[node2] = 10
+2026/05/07 19:41:10 ✅ Loaded balance: BHX[system] = 19999950
+2026/05/07 19:41:10 ✅ Loaded balance: ETH[03e2459b73c0c6522530f6b26e834d992dfc55d170bee35d0bcdc047fe0d61c25b] = 10000
+2026/05/07 19:41:10 ✅ Loaded balance: ETH[system] = 1000000
+2026/05/07 19:41:10 ✅ Loaded balance: USDT[03e2459b73c0c6522530f6b26e834d992dfc55d170bee35d0bcdc047fe0d61c25b] = 50000
+2026/05/07 19:41:10 ✅ Loaded balance: USDT[system] = 10000000
+2026/05/07 19:41:10 ✅ Loaded 12 token balances from persistent storage
+2026/05/07 19:41:10 📋 USDT balances after loading:
+2026/05/07 19:41:10    03e2459b73c0c6522530f6b26e834d992dfc55d170bee35d0bcdc047fe0d61c25b: 50000
+2026/05/07 19:41:10    system: 10000000
+2026/05/07 19:41:10 📋 BHX balances after loading:
+2026/05/07 19:41:10    system: 19999950
+2026/05/07 19:41:10    03e2459b73c0c6522530f6b26e834d992dfc55d170bee35d0bcdc047fe0d61c25b: 1000
+2026/05/07 19:41:10    bob: 1000
+2026/05/07 19:41:10    charlie: 300
+2026/05/07 19:41:10    genesis-validator: 1010
+2026/05/07 19:41:10    alice: 500
+2026/05/07 19:41:10    node1: 50
+2026/05/07 19:41:10    node2: 10
+2026/05/07 19:41:10 📋 ETH balances after loading:
+2026/05/07 19:41:10    system: 1000000
+2026/05/07 19:41:10    03e2459b73c0c6522530f6b26e834d992dfc55d170bee35d0bcdc047fe0d61c25b: 10000
+✅ Existing blockchain state loaded from persistent storage
+
+🔍 DEBUG: Current Token Balances
+================================
+📋 BHX Token Balances:
+   bob: 1000
+   charlie: 300
+   genesis-validator: 1010
+   alice: 500
+   node1: 50
+   node2: 10
+   system: 19999950
+   03e2459b73c0c6522530f6b26e834d992dfc55d170bee35d0bcdc047fe0d61c25b: 1000
+📋 ETH Token Balances:
+   03e2459b73c0c6522530f6b26e834d992dfc55d170bee35d0bcdc047fe0d61c25b: 10000
+   system: 1000000
+📋 USDT Token Balances:
+   03e2459b73c0c6522530f6b26e834d992dfc55d170bee35d0bcdc047fe0d61c25b: 50000
+   system: 10000000
+✅ Total balance entries: 12
+================================
+
+🚀 Your peer multiaddr:
+   /ip4/127.0.0.1/tcp/3000/p2p/12D3KooWNdwMFgsxpDamMriVVSmK2nyEvxhqn9QxrRoaVKJ2BCZt
+🔍 Initializing advanced monitoring system...
+✅ Advanced monitoring system started
+✅ Advanced monitoring system initialized
+🧪 Initializing E2E validation system...
+✅ E2E Validator initialized successfully
+✅ E2E validation system initialized
+🏛️ Initializing governance simulation...
+✅ Governance simulator started
+✅ Governance simulation initialized
+💡 To use bridge functionality, start the bridge SDK separately:
+   go run bridge-sdk/example/main.go
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+📤 Requested blocks 1 to 100
+🖥️ BlackHole Blockchain CLI - Enhanced Edition
+Available commands:
+  status     - Show blockchain status
+  log        - Log blockchain state to file
+  list       - List all blockchain state files
+  compare    - Compare blockchain states from two files
+  monitor    - Show monitoring metrics and alerts
+  validate   - Run E2E validation tests
+  governance - Show governance proposals and voting
+  proposal   - Create a new governance proposal
+  vote       - Vote on a governance proposal
+  exit       - Shutdown node
+> 🌐 API Server starting on port 8080
+🌐 Open http://localhost:8080 in your browser
+📝 Proposal submitted: Increase Block Reward (parameter_change)
+📝 Sample governance proposal created: Increase Block Reward
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+🤖 Simulating voting for proposal: Increase Block Reward
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+⏰ Validator node1 has been down for 3600 seconds
+🚨 Slashing violation reported: Excessive Downtime for node1 (Severity: 0, Amount: 10)
+⏰ Validator node2 has been down for 3600 seconds
+🚨 Slashing violation reported: Excessive Downtime for node2 (Severity: 0, Amount: 5)
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+2026/05/07 19:42:02 [SCHEMA][REJECT] reason=schema violation: field=payload reason=malformed JSON or unknown fields: json: unknown field "unknown_field"
+2026/05/07 19:42:02 [REJECT][SCHEMA_VIOLATION] trace= reason=schema violation: field=payload reason=malformed JSON or unknown fields: json: unknown field "unknown_field"
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+2026/05/07 19:42:10 🧹 Cache cleanup completed: 0 active users, 0KB total memory
+⏰ Validator node2 has been down for 3600 seconds
+⏰ Validator node1 has been down for 3600 seconds
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+⏰ Validator node1 has been down for 3600 seconds
+⏰ Validator node2 has been down for 3600 seconds
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+2026/05/07 19:43:10 🧹 Cache cleanup completed: 0 active users, 0KB total memory
+⏰ Validator node2 has been down for 3600 seconds
+⏰ Validator node1 has been down for 3600 seconds
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+⏰ Validator node1 has been down for 3600 seconds
+⏰ Validator node2 has been down for 3600 seconds
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+2026/05/07 19:44:10 🧹 Cache cleanup completed: 0 active users, 0KB total memory
+⏰ Validator node1 has been down for 3600 seconds
+⏰ Validator node2 has been down for 3600 seconds
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+⏰ Validator node1 has been down for 3600 seconds
+⏰ Validator node2 has been down for 3600 seconds
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+2026/05/07 19:45:10 🧹 Cache cleanup completed: 0 active users, 0KB total memory
+⏰ Validator node1 has been down for 3600 seconds
+⏰ Validator node2 has been down for 3600 seconds
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+2026/05/07 19:45:31 [AKASHIC][RECONSTRUCT] entries=5 chain=intact final_state_root=67c671b7336d1c0001a0b4c69fd7c674bc2287dc3f858bcfeb7f2700c7c7b37f
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+⏰ Validator node1 has been down for 3600 seconds
+⏰ Validator node2 has been down for 3600 seconds
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+2026/05/07 19:46:10 🧹 Cache cleanup completed: 0 active users, 0KB total memory
+⏰ Validator node2 has been down for 3600 seconds
+⏰ Validator node1 has been down for 3600 seconds
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+⏰ Validator node1 has been down for 3600 seconds
+⏰ Validator node2 has been down for 3600 seconds
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+2026/05/07 19:47:10 🧹 Cache cleanup completed: 0 active users, 0KB total memory
+⏰ Validator node1 has been down for 3600 seconds
+⏰ Validator node2 has been down for 3600 seconds
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+⏰ Validator node1 has been down for 3600 seconds
+⏰ Validator node2 has been down for 3600 seconds
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+2026/05/07 19:48:10 🧹 Cache cleanup completed: 0 active users, 0KB total memory
+⏰ Validator node1 has been down for 3600 seconds
+⏰ Validator node2 has been down for 3600 seconds
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+⏰ Validator node1 has been down for 3600 seconds
+⏰ Validator node2 has been down for 3600 seconds
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+2026/05/07 19:49:10 🧹 Cache cleanup completed: 0 active users, 0KB total memory
+⏰ Validator node1 has been down for 3600 seconds
+⏰ Validator node2 has been down for 3600 seconds
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+⏰ Validator node1 has been down for 3600 seconds
+⏰ Validator node2 has been down for 3600 seconds
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+2026/05/07 19:50:10 🧹 Cache cleanup completed: 0 active users, 0KB total memory
+⏰ Validator node1 has been down for 3600 seconds
+⏰ Validator node2 has been down for 3600 seconds
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+⏰ Validator node1 has been down for 3600 seconds
+⏰ Validator node2 has been down for 3600 seconds
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+2026/05/07 19:51:10 🧹 Cache cleanup completed: 0 active users, 0KB total memory
+⏰ Validator node2 has been down for 3600 seconds
+⏰ Validator node1 has been down for 3600 seconds
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+⏰ Validator node2 has been down for 3600 seconds
+⏰ Validator node1 has been down for 3600 seconds
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+^A🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+2026/05/07 19:52:10 🧹 Cache cleanup completed: 0 active users, 0KB total memory
+⏰ Validator node2 has been down for 3600 seconds
+⏰ Validator node1 has been down for 3600 seconds
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100
+📤 Sent sync request for blocks 1 to 100
+📝 Blockchain state updated at blockchain_logs\blockchain_state_node_3000.json
+🚫 No pending transactions, skipping block mining
+📤 Requested blocks 1 to 100

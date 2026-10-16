@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blackhole Blockchain Dashboard</title>
+    <script>
+    // VAJRA Production Error Boundary Safety
+    window.addEventListener('error', function(event) {
+      console.warn('[VAJRA UI Error Boundary Intercepted Error]:', event.error || event.message);
+      var boundary = document.getElementById('vajra-ui-error-boundary-banner');
+      if (!boundary && document.body) {
+        boundary = document.createElement('div');
+        boundary.id = 'vajra-ui-error-boundary-banner';
+        boundary.style = 'position:fixed;bottom:10px;right:10px;background:#1e293b;color:#f87171;border:1px solid #ef4444;padding:8px 14px;border-radius:6px;font-family:monospace;font-size:12px;z-index:99999;box-shadow:0 4px 6px rgba(0,0,0,0.3);';
+        boundary.innerHTML = '🛡️ Error Boundary Active: UI runtime stabilized. Check console.';
+        document.body.appendChild(boundary);
+        setTimeout(function(){ if(boundary) boundary.style.opacity = '0.7'; }, 5000);
+      }
+    });
+    window.addEventListener('unhandledrejection', function(event) {
+      console.warn('[VAJRA UI Error Boundary Intercepted Unhandled Promise]:', event.reason);
+    });
+    </script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { background: #2c3e50; color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .card h3 { margin-top: 0; color: #2c3e50; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+        .stat { background: #ecf0f1; padding: 15px; border-radius: 4px; text-align: center; }
+        .stat-value { font-size: 24px; font-weight: bold; color: #2c3e50; }
+        .stat-label { font-size: 12px; color: #7f8c8d; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
+        th, td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; word-wrap: break-word; overflow-wrap: break-word; }
+        th { background: #f8f9fa; }
+        .address { font-family: monospace; font-size: 12px; word-break: break-all; max-width: 200px; }
+        .btn { background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
+        .btn:hover { background: #2980b9; }
+        .admin-form { background: #fff3cd; padding: 15px; border-radius: 4px; margin-top: 10px; }
+        .form-group { margin-bottom: 10px; }
+        .form-group label { display: block; margin-bottom: 5px; }
+        .form-group input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        .refresh-btn { position: fixed; top: 20px; right: 20px; z-index: 1000; }
+        .block-item { background: #f8f9fa; margin: 5px 0; padding: 10px; border-radius: 4px; }
+        .card { overflow-x: auto; }
+        .card table { min-width: 100%; }
+        .card pre { white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; }
+        .card code { word-break: break-all; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌌 Blackhole Blockchain Dashboard</h1>
+            <p>Real-time blockchain monitoring and administration</p>
+        </div>
+
+        <button class="btn refresh-btn" onclick="refreshData()"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z"/></svg> Refresh</button>
+
+        <div class="grid">
+            <div class="card">
+                <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg> Blockchain Stats</h3>
+                <div class="stats" id="blockchain-stats">
+                    <div class="stat">
+                        <div class="stat-value" id="block-height">-</div>
+                        <div class="stat-label">Block Height</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="pending-txs">-</div>
+                        <div class="stat-label">Pending Transactions</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="total-supply">-</div>
+                        <div class="stat-label">Circulating Supply</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="max-supply">-</div>
+                        <div class="stat-label">Max Supply</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="supply-utilization">-</div>
+                        <div class="stat-label">Supply Used</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="block-reward">-</div>
+                        <div class="stat-label">Block Reward</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>💰 Token Balances</h3>
+                <div id="token-balances"></div>
+            </div>
+
+            <div class="card">
+                <h3>🏛️ Staking Information</h3>
+                <div id="staking-info"></div>
+            </div>
+
+            <div class="card">
+                <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H6.99c-2.76 0-5 2.24-5 5s2.24 5 5 5H11v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm5-6h4.01c2.76 0 5 2.24 5 5s-2.24 5-5 5H13v1.9h4.01c2.76 0 5-2.24 5-5H13V7z"/></svg> Recent Blocks</h3>
+                <div id="recent-blocks"></div>
+            </div>
+
+            
+            <div class="card">
+                <h3>🛰️ Node Connectivity</h3>
+                <div>
+                    <div><strong>Persistent Peer ID:</strong></div>
+                    <div id="p2p-peerid" class="address">-</div>
+                    <div style="margin-top:8px;"><strong>Full MultiAddr:</strong></div>
+                    <div id="p2p-maddr" class="address">-</div>
+                    <div style="margin-top:12px; display:flex; gap:8px;">
+                        <button class="btn" onclick="copyPeerAddr()">Copy</button>
+                        <button class="btn" onclick="refreshP2PInfo()" style="background:#27ae60;">Refresh</button>
+                    </div>
+                    <div style="margin-top:8px; font-size:12px; color:#666;">
+                        Bridge Connected: <span id="p2p-bridge" style="font-weight:bold;">-</span> | Last Seen: <span id="p2p-lastseen">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>💼 Wallet Access</h3>
+                <p>Access your secure wallet interface:</p>
+                <button class="btn" onclick="window.open('/wallet', '_blank')" style="background: #28a745; margin-bottom: 10px;">
+                    🌌 Open Wallet UI
+                </button>
+                <button class="btn" onclick="window.open('/dev', '_blank')" style="background: #e74c3c; margin-bottom: 20px;">
+                    🔧 Developer Mode
+                </button>
+                <p style="font-size: 12px; color: #666;">
+                    Note: Make sure the wallet service is running with: <br>
+                    <code>go run main.go -web -port 9000</code>
+                </p>
+            </div>
+
+            <div class="card">
+                <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M15,3V7.59L7.59,15H4V17H7.59L15,9.59V15H17V9.59L9.59,2H15V3M17,17V21H15V17H17Z"/></svg> Bridge Status</h3>
+                <div class="stats" id="bridge-stats">
+                    <div class="stat">
+                        <div class="stat-value" id="bridge-status">-</div>
+                        <div class="stat-label">Bridge Status</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="bridge-port">-</div>
+                        <div class="stat-label">Bridge Port</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="bridge-health">-</div>
+                        <div class="stat-label">Health</div>
+                    </div>
+                </div>
+                <div style="margin-top: 15px;">
+                    <button class="btn" onclick="openBridgeDashboard()" id="bridge-dashboard-btn" disabled>
+                        🚀 Open Bridge Dashboard
+                    </button>
+                    <button class="btn" onclick="refreshBridgeStatus()" style="background: #27ae60;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z"/></svg> Refresh Bridge Status
+                    </button>
+                </div>
+                <div id="bridge-components" style="margin-top: 15px;">
+                    <h4>Workflow Components</h4>
+                    <div id="bridge-components-list">Loading...</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>⚙️ Admin Panel</h3>
+                <div class="admin-form">
+                    <h4>Add Tokens to Address</h4>
+                    <div class="form-group">
+                        <label>Address:</label>
+                        <input type="text" id="admin-address" placeholder="Enter wallet address">
+                    </div>
+                    <div class="form-group">
+                        <label>Token Symbol:</label>
+                        <input type="text" id="admin-token" value="BHIV" placeholder="Token symbol">
+                    </div>
+                    <div class="form-group">
+                        <label>Amount:</label>
+                        <input type="number" id="admin-amount" placeholder="Amount to add">
+                    </div>
+                    <button class="btn" onclick="addTokens()">Add Tokens</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const IS_PROD = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+        const BRIDGE_URL = IS_PROD ? '/bridge' : 'http://localhost:8084';
+
+        let refreshInterval;
+        let bridgeRefreshInterval;
+        let p2pRefreshInterval;
+
+        async function fetchBlockchainInfo() {
+            try {
+                const response = await fetch('/api/blockchain/info');
+                const data = await response.json();
+                updateUI(data);
+
+                // Also fetch bridge status
+                fetchBridgeStatus();
+            } catch (error) {
+                console.error('Error fetching blockchain info:', error);
+            }
+        }
+
+        async function fetchP2PInfo() {
+            try {
+                const elPeer = document.getElementById('p2p-peerid');
+                const elAddr = document.getElementById('p2p-maddr');
+                if (!elPeer || !elAddr) return; // Node section may be hidden in custom builds
+                const resp = await fetch('/api/p2p/info');
+                if (!resp.ok) return;
+                const info = await resp.json();
+                elPeer.textContent = info.peerId || '-';
+                elAddr.textContent = (info.multiaddrs && info.multiaddrs.length > 0) ? info.multiaddrs[0] : '-';
+                const elBridge = document.getElementById('p2p-bridge');
+                const elSeen = document.getElementById('p2p-lastseen');
+                if (elBridge) elBridge.textContent = info.bridgeConnected ? 'Yes' : 'No';
+                if (elSeen) elSeen.textContent = info.lastSeen || '-';
+            } catch (e) {
+                console.warn('p2p info fetch failed', e);
+            }
+        }
+
+        function copyPeerAddr() {
+            const el = document.getElementById('p2p-maddr');
+            if (!el) return;
+            const txt = el.textContent || '';
+            if (!txt) return;
+            navigator.clipboard.writeText(txt);
+        }
+
+        function refreshP2PInfo() { fetchP2PInfo(); }
+
+        async function fetchBridgeStatus(retryCount = 0) {
+            try {
+                console.log('Checking bridge SDK status, attempt:', retryCount + 1);
+                const bridgeUrl = BRIDGE_URL;
+                const response = await fetch(bridgeUrl + '/health');
+
+                if (response.ok) {
+                    const healthData = await response.json();
+                    console.log('Bridge SDK health response:', healthData);
+
+                    const bridgeData = {
+                        success: true,
+                        data: {
+                            bridge_status: {
+                                status: 'running',
+                                healthy: true,
+                                name: 'bridge-sdk'
+                            },
+                            sdk_running: true,
+                            sdk_port: 8084
+                        }
+                    };
+                    updateBridgeUI(bridgeData);
+                } else {
+                    throw new Error('Bridge SDK not responding');
+                }
+            } catch (error) {
+                console.error('Error checking bridge SDK:', error);
+                if (retryCount < 3) {
+                    console.log('Retrying bridge status check in', (retryCount + 1) * 2, 'seconds...');
+                    setTimeout(() => fetchBridgeStatus(retryCount + 1), (retryCount + 1) * 2000);
+                } else {
+                    updateBridgeUI({ success: false, error: 'Bridge SDK not available' });
+                }
+            }
+        }
+
+        function updateUI(data) {
+            try {
+                document.getElementById('block-height').textContent = (data.blockHeight ?? '-');
+                document.getElementById('pending-txs').textContent = (data.pendingTxs ?? '-');
+                const totalSupply = data.totalSupply ?? 0;
+                const maxSupply = data.maxSupply ?? 0;
+                document.getElementById('total-supply').textContent = Number(totalSupply).toLocaleString();
+                document.getElementById('max-supply').textContent = maxSupply ? Number(maxSupply).toLocaleString() : 'Unlimited';
+                const util = data.supplyUtilization ?? (maxSupply ? (Number(totalSupply)/Number(maxSupply))*100 : 0);
+                document.getElementById('supply-utilization').textContent = util ? util.toFixed(2) + '%' : '0%';
+                document.getElementById('block-reward').textContent = (data.blockReward ?? '-');
+                updateTokenBalances(data.tokenBalances || {});
+                updateStakingInfo(data.stakes || {});
+                updateRecentBlocks(data.recentBlocks || []);
+            } catch (e) {
+                console.warn('updateUI failed', e);
+            }
+        }
+
+        function updateBridgeUI(data) {
+            console.log('Updating bridge UI with data:', data);
+            if (data.success && data.data) {
+                const bridgeData = data.data;
+                const status = bridgeData.bridge_status;
+                console.log('Bridge status object:', status);
+                console.log('SDK running:', bridgeData.sdk_running);
+                const statusText = status && status.status ? status.status : 'Unknown';
+                document.getElementById('bridge-status').textContent = statusText;
+                document.getElementById('bridge-port').textContent = bridgeData.sdk_port || '-';
+                let isHealthy = false;
+                if (status) {
+                    isHealthy = status.healthy === true || status.status === 'running';
+                }
+                if (!isHealthy && bridgeData.sdk_running === true) {
+                    isHealthy = true;
+                }
+                console.log('Computed health status:', isHealthy);
+                document.getElementById('bridge-health').innerHTML = isHealthy ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> Healthy' : '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/></svg> Unhealthy';
+                const dashboardBtn = document.getElementById('bridge-dashboard-btn');
+                if (bridgeData.sdk_running === true || isHealthy) {
+                    dashboardBtn.disabled = false;
+                    dashboardBtn.style.background = '#3498db';
+                } else {
+                    dashboardBtn.disabled = true;
+                    dashboardBtn.style.background = '#95a5a6';
+                }
+            } else {
+                console.log('Bridge data not available or unsuccessful response');
+                document.getElementById('bridge-status').textContent = 'Not Available';
+                document.getElementById('bridge-port').textContent = '-';
+                document.getElementById('bridge-health').innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/></svg> Offline';
+                const dashboardBtn = document.getElementById('bridge-dashboard-btn');
+                dashboardBtn.disabled = true;
+                dashboardBtn.style.background = '#95a5a6';
+            }
+        }
+
+        function openBridgeDashboard() {
+            const bridgeUrl = BRIDGE_URL;
+            fetch(bridgeUrl + '/health')
+                .then(response => {
+                    if (response.ok) {
+                        window.open(bridgeUrl, '_blank');
+                    } else {
+                        alert('Bridge dashboard is not accessible. Please ensure the bridge SDK is running:\n\ncd bridge-sdk/example\ngo run main.go');
+                    }
+                })
+                .catch(error => {
+                    console.error('Bridge not accessible:', error);
+                    alert('Bridge dashboard is not accessible. Please ensure the bridge SDK is running:\n\ncd bridge-sdk/example\ngo run main.go');
+                });
+        }
+
+        function refreshBridgeStatus() { fetchBridgeStatus(); }
+
+        function updateTokenBalances(tokenBalances) {
+            const container = document.getElementById('token-balances');
+            let html = '';
+            const entries = Object.entries(tokenBalances || {});
+            if (entries.length === 0) {
+                container.innerHTML = '<em>No token balances yet</em>';
+                return;
+            }
+            for (const [token, balances] of entries) {
+                html += '<h4>' + token + '</h4>';
+                html += '<table><tr><th>Address</th><th>Balance</th></tr>';
+                for (const [address, balance] of Object.entries(balances || {})) {
+                    if (Number(balance) > 0) {
+                        html += '<tr><td class="address">' + address + '</td><td>' + Number(balance).toLocaleString() + '</td></tr>';
+                    }
+                }
+                html += '</table>';
+            }
+            container.innerHTML = html;
+        }
+
+        function updateStakingInfo(stakes) {
+            const container = document.getElementById('staking-info');
+            let html = '<table><tr><th>Address</th><th>Stake Amount</th></tr>';
+            const entries = Object.entries(stakes || {});
+            if (entries.length === 0) {
+                container.innerHTML = '<em>No stakes yet</em>';
+                return;
+            }
+            for (const [address, stake] of entries) {
+                if (Number(stake) > 0) {
+                    html += '<tr><td class="address">' + address + '</td><td>' + Number(stake).toLocaleString() + '</td></tr>';
+                }
+            }
+            html += '</table>';
+            container.innerHTML = html;
+        }
+
+        function updateRecentBlocks(blocks) {
+            const container = document.getElementById('recent-blocks');
+            let html = '';
+            (Array.isArray(blocks) ? blocks : []).slice(-5).reverse().forEach(block => {
+                html += '<div class="block-item">';
+                html += '<strong>Block #' + (block.index ?? '-') + '</strong><br>';
+                html += 'Validator: ' + (block.validator ?? '-') + '<br>';
+                html += 'Transactions: ' + (block.txCount ?? '-') + '<br>';
+                html += 'Time: ' + (block.timestamp ? new Date(block.timestamp).toLocaleTimeString() : '-') ;
+                html += '</div>';
+            });
+            container.innerHTML = html;
+        }
+
+        async function addTokens() {
+            const address = document.getElementById('admin-address').value;
+            const token = document.getElementById('admin-token').value;
+            const amount = document.getElementById('admin-amount').value;
+            if (!address || !token || !amount) {
+                alert('Please fill all fields');
+                return;
+            }
+            try {
+                const response = await fetch('/api/admin/add-tokens', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ address, token, amount: parseInt(amount) })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    alert('Tokens added successfully!');
+                    document.getElementById('admin-address').value = '';
+                    document.getElementById('admin-amount').value = '';
+                    fetchBlockchainInfo();
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                alert('Error adding tokens: ' + error.message);
+            }
+        }
+
+        function refreshData() { fetchBlockchainInfo(); fetchP2PInfo(); }
+
+        function startAutoRefresh() {
+            refreshInterval = setInterval(fetchBlockchainInfo, 3000);
+            bridgeRefreshInterval = setInterval(fetchBridgeStatus, 5000);
+            p2pRefreshInterval = setInterval(fetchP2PInfo, 5000);
+        }
+
+        function stopAutoRefresh() {
+            if (refreshInterval) clearInterval(refreshInterval);
+            if (bridgeRefreshInterval) clearInterval(bridgeRefreshInterval);
+            if (p2pRefreshInterval) clearInterval(p2pRefreshInterval);
+        }
+
+        // Initialize
+        fetchBlockchainInfo();
+        setTimeout(() => { fetchBridgeStatus(); fetchP2PInfo(); }, 2000);
+        startAutoRefresh();
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) { stopAutoRefresh(); } else { startAutoRefresh(); }
+        });
+    </script>
+</body>
+</html>

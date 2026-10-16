@@ -1,0 +1,35 @@
+FROM golang:1.24.3-alpine AS builder
+
+RUN apk add --no-cache git gcc musl-dev ca-certificates
+
+WORKDIR /app
+
+# Copy only core/relay-chain module files first for dependency caching
+COPY core/relay-chain/go.mod core/relay-chain/go.sum ./core/relay-chain/
+
+RUN cd core/relay-chain && go mod download
+
+# Copy full source
+COPY . .
+
+# Build fraud-service from core/relay-chain module directly
+RUN cd core/relay-chain && \
+    CGO_ENABLED=0 GOOS=linux go build \
+    -ldflags="-w -s" \
+    -o /app/fraud-service \
+    ./cmd/fraud-service/main.go
+
+FROM alpine:latest
+
+RUN apk --no-cache add ca-certificates curl
+
+WORKDIR /app
+
+COPY --from=builder /app/fraud-service ./fraud-service
+
+EXPOSE 9090
+
+HEALTHCHECK --interval=15s --timeout=5s --start-period=10s --retries=5 \
+    CMD curl -f http://localhost:9090/health || exit 1
+
+CMD ["./fraud-service"]

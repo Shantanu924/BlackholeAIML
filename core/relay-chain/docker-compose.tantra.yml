@@ -1,0 +1,216 @@
+version: "3.8"
+
+# Full TANTRA Ecosystem — Scope 5
+#
+# Topology (all services on tantra-net bridge):
+#
+#   nonce-coord   :9200  — Cross-node nonce coordinator (global nonce ledger)
+#   pdv-exec      :9101  — ExecutionAgent  (separate container)
+#   pdv-val       :9102  — ValidationAgent (separate container)
+#   pdv-replay    :9103  — ReplayAgent     (separate container)
+#   fraud-service :9090  — Sarathi/DGIC governance gate
+#   relay-a       :8080  — Relay node A (primary)
+#   relay-b       :8081  — Relay node B (secondary — proves multi-node)
+#   wallet        :9000  — Wallet service
+#
+# TANTRA flow proven:
+#   Wallet → KSML/CET → PDV (3 containers) → Governance (Sarathi)
+#   → Blockchain → Bucket → AKASHIC → Replay → Explorer/Observability
+#   → Multi-Node Verification (relay-a + relay-b + nonce-coord)
+#
+# Run:
+#   docker-compose -f docker-compose.tantra.yml up --build
+#
+# Proof endpoints (relay-a):
+#   GET  http://localhost:8080/api/tantra/status
+#   GET  http://localhost:8080/api/constitution/declaration
+#   GET  http://localhost:8080/api/replay/state-root
+#   GET  http://localhost:8080/api/akashic/reconstruct
+#   GET  http://localhost:8080/api/tantra/chain-integrity
+#   POST http://localhost:8080/api/relay/submit
+
+networks:
+  tantra-net:
+    driver: bridge
+
+volumes:
+  relay-a-data:
+  relay-b-data:
+  nonce-coord-data:
+
+services:
+
+  # ── NONCE COORDINATOR ─────────────────────────────────────────────────────
+  nonce-coord:
+    build:
+      context: .
+      dockerfile: Dockerfile.relay
+    container_name: tantra-nonce-coord
+    command: ["/app/relay-node"]
+    entrypoint: ["sh", "-c", "cd /app && ./relay-node 9200 2>&1 || true"]
+    environment:
+      - NONCE_COORD_MODE=true
+    ports:
+      - "9200:9200"
+    networks:
+      - tantra-net
+    volumes:
+      - nonce-coord-data:/app/data
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:9200/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # ── PDV AGENTS ────────────────────────────────────────────────────────────
+  pdv-exec:
+    build:
+      context: .
+      dockerfile: Dockerfile.pdv-agent
+    container_name: tantra-pdv-exec
+    environment:
+      - AGENT_NAME=ExecutionAgent
+      - AGENT_PORT=9101
+    ports:
+      - "9101:9101"
+    networks:
+      - tantra-net
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:9101/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  pdv-val:
+    build:
+      context: .
+      dockerfile: Dockerfile.pdv-agent
+    container_name: tantra-pdv-val
+    environment:
+      - AGENT_NAME=ValidationAgent
+      - AGENT_PORT=9102
+    ports:
+      - "9102:9102"
+    networks:
+      - tantra-net
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:9102/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  pdv-replay:
+    build:
+      context: .
+      dockerfile: Dockerfile.pdv-agent
+    container_name: tantra-pdv-replay
+    environment:
+      - AGENT_NAME=ReplayAgent
+      - AGENT_PORT=9103
+    ports:
+      - "9103:9103"
+    networks:
+      - tantra-net
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:9103/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # ── FRAUD / GOVERNANCE SERVICE (Sarathi) ──────────────────────────────────
+  fraud-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.relay
+    container_name: tantra-fraud-service
+    entrypoint: ["sh", "-c", "cd /app && ./relay-node 9090 2>&1 || true"]
+    ports:
+      - "9090:9090"
+    networks:
+      - tantra-net
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:9090/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # ── RELAY NODE A (primary) ────────────────────────────────────────────────
+  relay-a:
+    build:
+      context: .
+      dockerfile: Dockerfile.relay
+    container_name: tantra-relay-a
+    environment:
+      # PDV agents — cross-container (Docker DNS)
+      - PDV_EXECUTION_AGENT_URL=http://pdv-exec:9101/pdv/execute
+      - PDV_VALIDATION_AGENT_URL=http://pdv-val:9102/pdv/validate
+      - PDV_REPLAY_AGENT_URL=http://pdv-replay:9103/pdv/replay
+      # Governance — Sarathi container
+      - SARATHI_URL=http://fraud-service:9090/api/fraud/check
+      # Cross-node nonce coordination
+      - NONCE_COORDINATOR_URL=http://nonce-coord:9200
+      # KarmaChain replication to relay-b
+      - KARMACHAIN_NODES=http://relay-b:8081
+      # Production-safe defaults (all ON — no env vars needed to enable)
+      - DOCKER_MODE=true
+      - BLOCKCHAIN_DOCKER=true
+      - NODE_ID=relay-a
+    ports:
+      - "8080:8080"
+      - "3000:3000"
+    networks:
+      - tantra-net
+    volumes:
+      - relay-a-data:/app/data
+    depends_on:
+      pdv-exec:
+        condition: service_healthy
+      pdv-val:
+        condition: service_healthy
+      pdv-replay:
+        condition: service_healthy
+      fraud-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ── RELAY NODE B (secondary — proves multi-node) ──────────────────────────
+  relay-b:
+    build:
+      context: .
+      dockerfile: Dockerfile.relay
+    container_name: tantra-relay-b
+    environment:
+      - PDV_EXECUTION_AGENT_URL=http://pdv-exec:9101/pdv/execute
+      - PDV_VALIDATION_AGENT_URL=http://pdv-val:9102/pdv/validate
+      - PDV_REPLAY_AGENT_URL=http://pdv-replay:9103/pdv/replay
+      - SARATHI_URL=http://fraud-service:9090/api/fraud/check
+      - NONCE_COORDINATOR_URL=http://nonce-coord:9200
+      - KARMACHAIN_NODES=http://relay-a:8080
+      - DOCKER_MODE=true
+      - BLOCKCHAIN_DOCKER=true
+      - NODE_ID=relay-b
+    ports:
+      - "8081:8080"
+      - "3001:3000"
+    networks:
+      - tantra-net
+    volumes:
+      - relay-b-data:/app/data
+    depends_on:
+      pdv-exec:
+        condition: service_healthy
+      pdv-val:
+        condition: service_healthy
+      pdv-replay:
+        condition: service_healthy
+      fraud-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10

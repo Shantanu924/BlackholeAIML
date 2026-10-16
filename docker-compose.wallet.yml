@@ -1,0 +1,46 @@
+
+networks:
+  blackhole-network:
+    external: true
+    name: blackhole-network
+
+volumes:
+  wallet-go-cache:
+    driver: local
+
+services:
+  wallet:
+    image: golang:1.23-alpine
+    container_name: blackhole-wallet
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+      - wallet-go-cache:/go
+    environment:
+      - DOCKER_MODE=true
+      - BLOCKCHAIN_API_URL=http://blackhole-node-1:8080
+      - BRIDGE_API_URL=http://blackhole-bridge:8084
+    networks:
+      - blackhole-network
+    ports:
+      - "9000:9000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/api/status"]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+      start_period: 5s
+    entrypoint: ["/bin/sh","-lc","tr -d '\r' < /workspace/docker/wallet-entrypoint.sh > /tmp/wallet-entrypoint.sh && /bin/sh /tmp/wallet-entrypoint.sh"]
+    restart: unless-stopped
+
+
+  ui-wallet-dashboard:
+    build:
+      context: ./ui/wallet-dashboard
+      dockerfile: Dockerfile
+    container_name: ui-wallet-dashboard
+    ports:
+      - "8102:8102"
+    networks:
+      - blackhole-network
+    restart: unless-stopped

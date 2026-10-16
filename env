@@ -1,0 +1,33 @@
+# BlackHole Blockchain - Environment Configuration
+# Copy this file to .env and fill in real values before deployment.
+# NEVER commit .env with real secrets to version control.
+
+# Logging
+LOG_LEVEL=info
+
+# MongoDB
+MONGO_INITDB_ROOT_USERNAME=bhivadmin
+MONGO_INITDB_ROOT_PASSWORD=changeme_strong_password
+MONGO_INITDB_DATABASE=blackhole_wallet
+MONGODB_URI=mongodb://bhivadmin:changeme_strong_password@blackhole-mongodb:27017/blackhole_wallet
+
+# Node Security
+# Set to true in production - requires real btcec wallet signatures on every tx
+SIGVERIFY_STRICT_MODE=true
+PDV_STRICT_MODE=true
+SARATHI_FAIL_CLOSED=true
+
+# TLS (Nginx)
+# For production replace self-signed certs with Let's Encrypt or your CA certs.
+# Place cert.pem and key.pem in ./nginx/certs/
+TLS_CERT_PATH=./nginx/certs/cert.pem
+TLS_KEY_PATH=./nginx/certs/key.pem
+
+# API Rate Limiting
+RATE_LIMIT_RPS=100
+
+# Central Authentication (SSO - Pravesh)
+# MUST match the JWT_SECRET from the blackhole_auth repository
+JWT_SECRET=blackhole-auth-super-secure-random-secret-min-32-chars
+AUTH_REDIRECT_URL=https://pravesh.blackholeinfiverse.com/login
+AUTH_API_URL=https://pravesh.blackholeinfiverse.com/api

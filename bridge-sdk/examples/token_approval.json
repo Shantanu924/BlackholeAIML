@@ -1,0 +1,25 @@
+{
+  "id": "tx_token_approval_982",
+  "hash": "0x9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1f0e9d8c7b6a5f4e3d2c1b0a9f8e",
+  "source_chain": "ethereum",
+  "dest_chain": "solana",
+  "source_address": "0x742d35Cc6634C0532925a3b8D4C9db96590c6C87",
+  "dest_address": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+  "amount": "0.00",
+  "token_symbol": "USDC",
+  "status": "TRANSACTION_STATUS_COMPLETED",
+  "created_at": 1751020800,
+  "completed_at": 1751020805,
+  "confirmations": 12,
+  "block_number": 18520394,
+  "gas_used": "45000",
+  "gas_price": "25000000000",
+  "source_module": "TOKEN",
+  "topic": "TokenApproval",
+  "message_version": "v1alpha1",
+  "meta": {
+    "spender": "0x1111111254fb6c44bac0bed2854e76f90643097d",
+    "allowance": "1000000.00",
+    "token_address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+  }
+}

@@ -1,0 +1,395 @@
+
+networks:
+  blackhole-network:
+    external: true
+    name: blackhole-network
+
+volumes:
+  blockchain-data-1:
+    driver: local
+  blockchain-logs-1:
+    driver: local
+  blockchain-data-2:
+    driver: local
+  blockchain-logs-2:
+    driver: local
+  blockchain-data-3:
+    driver: local
+  blockchain-logs-3:
+    driver: local
+  blockchain-data-4:
+    driver: local
+  blockchain-logs-4:
+    driver: local
+  blockchain-data-5:
+    driver: local
+  blockchain-logs-5:
+    driver: local
+  bridge-data:
+    driver: local
+  bridge-logs:
+    driver: local
+  blockchain_data:
+    name: blackhole-blockchain_blockchain_data
+    driver: local
+  wallet-go-cache:
+    driver: local
+  mongodb-data:
+    driver: local
+
+services:
+
+  # MongoDB — required by wallet service
+  mongodb:
+    image: mongo:6
+    container_name: blackhole-mongodb
+    restart: unless-stopped
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME:-bhivadmin}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD:-changeme_strong_password}
+      - MONGO_INITDB_DATABASE=blackhole_wallet
+    volumes:
+      - mongodb-data:/data/db
+    networks:
+      - blackhole-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # Fraud Detection Service (port 9090)
+  fraud-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.tantra
+    container_name: blackhole-fraud
+    ports:
+      - "9090:9090"
+    networks:
+      - blackhole-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9090/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # BlackHole Blockchain Node 1 (bootstrap/seed)
+  blockchain-node-1:
+    build:
+      context: .
+      dockerfile: deploy/mainnet/Dockerfile.blockchain
+    container_name: blackhole-node-1
+    command: ["./blockchain"]
+    ports:
+      - "8080:8080"
+      - "30303:3000"
+    environment:
+      - NODE_ENV=production
+      - DOCKER_MODE=true
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - HTTP_PORT=8080
+      - P2P_PORT=3000
+      - NODE_ID=blackhole-node-1
+      - SARATHI_URL=http://blackhole-fraud:9090
+      - BLOCKCHAIN_IDENTITY_DIR=/data/blockchain
+      - PDV_STRICT_MODE=false
+      - SARATHI_FAIL_CLOSED=false
+      - SIGVERIFY_STRICT_MODE=${SIGVERIFY_STRICT_MODE:-false}
+      - TANTRA_BUCKET_URL=https://bucket.vajra.blackholeinfiverse.com/api/v1/records
+    volumes:
+      - blockchain-data-1:/app/data
+      - blockchain-logs-1:/app/logs
+      - blockchain_data:/data/blockchain
+    networks:
+      - blackhole-network
+    restart: unless-stopped
+    depends_on:
+      fraud-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  # BlackHole Blockchain Node 2
+  blockchain-node-2:
+    build:
+      context: .
+      dockerfile: deploy/mainnet/Dockerfile.blockchain
+    container_name: blackhole-node-2
+    command: ["./blockchain"]
+    ports:
+      - "8081:8080"
+      - "30304:3000"
+    environment:
+      - NODE_ENV=production
+      - DOCKER_MODE=true
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - HTTP_PORT=8080
+      - P2P_PORT=3000
+      - NODE_ID=blackhole-node-2
+      - SARATHI_URL=http://blackhole-fraud:9090
+      - BOOTNODES_HTTP=http://blackhole-node-1:8080/api/p2p/info
+      - PDV_STRICT_MODE=false
+      - SARATHI_FAIL_CLOSED=false
+      - SIGVERIFY_STRICT_MODE=${SIGVERIFY_STRICT_MODE:-false}
+      - TANTRA_BUCKET_URL=https://bucket.vajra.blackholeinfiverse.com/api/v1/records
+    volumes:
+      - blockchain-data-2:/app/data
+      - blockchain-logs-2:/app/logs
+    networks:
+      - blackhole-network
+    restart: unless-stopped
+    depends_on:
+      blockchain-node-1:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  # BlackHole Blockchain Node 3
+  blockchain-node-3:
+    build:
+      context: .
+      dockerfile: deploy/mainnet/Dockerfile.blockchain
+    container_name: blackhole-node-3
+    command: ["./blockchain"]
+    ports:
+      - "8082:8080"
+      - "30305:3000"
+    environment:
+      - NODE_ENV=production
+      - DOCKER_MODE=true
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - HTTP_PORT=8080
+      - P2P_PORT=3000
+      - NODE_ID=blackhole-node-3
+      - SARATHI_URL=http://blackhole-fraud:9090
+      - BOOTNODES_HTTP=http://blackhole-node-1:8080/api/p2p/info
+      - PDV_STRICT_MODE=false
+      - SARATHI_FAIL_CLOSED=false
+      - SIGVERIFY_STRICT_MODE=${SIGVERIFY_STRICT_MODE:-false}
+      - TANTRA_BUCKET_URL=https://bucket.vajra.blackholeinfiverse.com/api/v1/records
+    volumes:
+      - blockchain-data-3:/app/data
+      - blockchain-logs-3:/app/logs
+    networks:
+      - blackhole-network
+    restart: unless-stopped
+    depends_on:
+      blockchain-node-1:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  # BlackHole Blockchain Node 4
+  blockchain-node-4:
+    build:
+      context: .
+      dockerfile: deploy/mainnet/Dockerfile.blockchain
+    container_name: blackhole-node-4
+    command: ["./blockchain"]
+    ports:
+      - "8083:8080"
+      - "30306:3000"
+    environment:
+      - NODE_ENV=production
+      - DOCKER_MODE=true
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - HTTP_PORT=8080
+      - P2P_PORT=3000
+      - NODE_ID=blackhole-node-4
+      - SARATHI_URL=http://blackhole-fraud:9090
+      - BOOTNODES_HTTP=http://blackhole-node-1:8080/api/p2p/info
+      - PDV_STRICT_MODE=false
+      - SARATHI_FAIL_CLOSED=false
+      - SIGVERIFY_STRICT_MODE=${SIGVERIFY_STRICT_MODE:-false}
+      - TANTRA_BUCKET_URL=https://bucket.vajra.blackholeinfiverse.com/api/v1/records
+    volumes:
+      - blockchain-data-4:/app/data
+      - blockchain-logs-4:/app/logs
+    networks:
+      - blackhole-network
+    restart: unless-stopped
+    depends_on:
+      blockchain-node-1:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  # BlackHole Blockchain Node 5
+  blockchain-node-5:
+    build:
+      context: .
+      dockerfile: deploy/mainnet/Dockerfile.blockchain
+    container_name: blackhole-node-5
+    command: ["./blockchain"]
+    ports:
+      - "8085:8080"
+      - "30307:3000"
+    environment:
+      - NODE_ENV=production
+      - DOCKER_MODE=true
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - HTTP_PORT=8080
+      - P2P_PORT=3000
+      - NODE_ID=blackhole-node-5
+      - SARATHI_URL=http://blackhole-fraud:9090
+      - BOOTNODES_HTTP=http://blackhole-node-1:8080/api/p2p/info
+      - PDV_STRICT_MODE=false
+      - SARATHI_FAIL_CLOSED=false
+      - SIGVERIFY_STRICT_MODE=${SIGVERIFY_STRICT_MODE:-false}
+      - TANTRA_BUCKET_URL=https://bucket.vajra.blackholeinfiverse.com/api/v1/records
+    volumes:
+      - blockchain-data-5:/app/data
+      - blockchain-logs-5:/app/logs
+    networks:
+      - blackhole-network
+    restart: unless-stopped
+    depends_on:
+      blockchain-node-1:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  # Bridge SDK Service
+  bridge:
+    build:
+      context: ./bridge-sdk
+      dockerfile: Dockerfile.bridge
+    container_name: blackhole-bridge
+    command: ["./bridge-sdk"]
+    ports:
+      - "8084:8084"
+    environment:
+      - DOCKER_MODE=true
+      - BLOCKCHAIN_API_URL=http://blackhole-node-1:8080
+      - BLACKHOLE_RPC=http://blackhole-node-1:8080
+      - WALLET_API_URL=http://blackhole-wallet:9000
+      - NODE_ENV=production
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - PORT=8084
+      - DATABASE_PATH=/app/data/bridge_v4.db
+      - LOG_FILE=/app/logs/bridge.log
+      - BLOCKCHAIN_IDENTITY_DIR=/data/blockchain
+    volumes:
+      - bridge-data:/app/data
+      - bridge-logs:/app/logs
+      - blockchain_data:/data/blockchain:ro
+    networks:
+      - blackhole-network
+    depends_on:
+      blockchain-node-1:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8084/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  # Cyber Defence UI Dashboard (serves the HTML dashboard at /defence/)
+  cyber-defence:
+    build:
+      context: ./ui/cyber-defence-dashboard
+      dockerfile: Dockerfile
+    container_name: blackhole-cyber-defence
+    ports:
+      - "8101:8101"
+    networks:
+      - blackhole-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8101/"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  wallet:
+    image: golang:alpine
+    container_name: blackhole-wallet
+    working_dir: /workspace
+    volumes:
+      - .:/workspace:ro
+      - wallet-go-cache:/go
+    environment:
+      - DOCKER_MODE=true
+      - BLOCKCHAIN_API_URL=http://blackhole-node-1:8080
+      - BRIDGE_API_URL=http://blackhole-bridge:8084
+      - MONGODB_URI=mongodb://${MONGO_INITDB_ROOT_USERNAME:-bhivadmin}:${MONGO_INITDB_ROOT_PASSWORD:-changeme_strong_password}@blackhole-mongodb:27017/blackhole_wallet
+      - JWT_SECRET=${JWT_SECRET:-please_set_your_jwt_secret_in_env_file}
+      - AUTH_REDIRECT_URL=${AUTH_REDIRECT_URL:-https://pravesh.blackholeinfiverse.com/login}
+      - AUTH_API_URL=${AUTH_API_URL:-https://pravesh.blackholeinfiverse.com/api}
+    depends_on:
+      blockchain-node-1:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+    networks:
+      - blackhole-network
+    ports:
+      - "9000:9000"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9000/api/status"]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+      start_period: 5s
+    entrypoint: ["/bin/sh","-lc","tr -d '\r' < /workspace/docker/wallet-entrypoint.sh > /tmp/wallet-entrypoint.sh && /bin/sh /tmp/wallet-entrypoint.sh"]
+
+  # Nginx — TLS reverse proxy for all services
+  nginx:
+    image: nginx:alpine
+    container_name: blackhole-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8444:8444"
+      - "9001:9001"
+      - "9443:9443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+    networks:
+      - blackhole-network
+    depends_on:
+      blockchain-node-1:
+        condition: service_healthy
+      bridge:
+        condition: service_healthy
+      wallet:
+        condition: service_healthy
+      fraud-service:
+        condition: service_healthy
+      cyber-defence:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s

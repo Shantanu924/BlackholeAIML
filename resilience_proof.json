@@ -1,0 +1,442 @@
+{
+  "checks": [
+    {
+      "name": "baseline_health",
+      "passed": true,
+      "detail": {
+        "data": {
+          "block_height": 1,
+          "pending_txs": 0,
+          "total_supply": 1000000000
+        },
+        "message": "Blockchain API is running",
+        "status": "healthy",
+        "success": true
+      },
+      "evidence_url": "http://localhost:8080/api/health"
+    },
+    {
+      "name": "baseline_pdv_agents",
+      "passed": true,
+      "detail": {
+        "agent_1": true,
+        "agent_2": true,
+        "agent_3": true
+      }
+    },
+    {
+      "name": "sig_strict_mode_active",
+      "passed": true,
+      "detail": {
+        "http_status": 403,
+        "note": "HTTP 403 SIGNATURE_REJECT = Phase 1 cryptography ACTIVE",
+        "response": {
+          "error_code": "SIGNATURE_REJECT",
+          "rejection_reason": "SIGNATURE_REJECT: signature missing — wallet must sign canonical payload",
+          "success": false,
+          "trace_id": "0fa66643f5c2d774"
+        },
+        "sig_enforced": true
+      },
+      "evidence_url": "http://localhost:8080/api/relay/submit"
+    },
+    {
+      "name": "nonce_replay_protection",
+      "passed": true,
+      "detail": {
+        "http_status": 409,
+        "nonce_rejected": true,
+        "note": "Either NONCE_REPLAY or SIGNATURE_REJECT proves the transaction was blocked",
+        "response": {
+          "error_code": "NONCE_REPLAY",
+          "rejection_reason": "NONCE_REPLAY: nonce 1782564566852514200 already used by address alice",
+          "success": false,
+          "trace_id": ""
+        },
+        "sig_caught_first": false
+      },
+      "evidence_url": "http://localhost:8080/api/nonce/records"
+    },
+    {
+      "name": "nonce_ledger_persistence",
+      "passed": true,
+      "detail": {
+        "count": 44,
+        "records": [
+          {
+            "address": "alice",
+            "nonce": 1780315933,
+            "timestamp": 1780315933,
+            "trace_id": ""
+          },
+          {
+            "address": "alice",
+            "nonce": 1,
+            "timestamp": 1780333666,
+            "trace_id": ""
+          },
+          {
+            "address": "alice",
+            "nonce": 2,
+            "timestamp": 1780333666,
+            "trace_id": ""
+          },
+          {
+            "address": "bad-actor",
+            "nonce": 3,
+            "timestamp": 1780333667,
+            "trace_id": ""
+          },
+          {
+            "address": "alice",
+            "nonce": 1780333705,
+            "timestamp": 1780333705,
+            "trace_id": ""
+          },
+          {
+            "address": "alice",
+            "nonce": 1780911159,
+            "timestamp": 1780910659,
+            "trace_id": ""
+          },
+          {
+            "address": "bad-actor",
+            "nonce": 1780911160,
+            "timestamp": 1780910659,
+            "trace_id": ""
+          },
+          {
+            "address": "alice",
+            "nonce": 1780911911,
+            "timestamp": 1780911411,
+            "trace_id": ""
+          },
+          {
+            "address": "bad-actor",
+            "nonce": 1780911912,
+            "timestamp": 1780911411,
+            "trace_id": ""
+          },
+          {
+            "address": "alice",
+            "nonce": 1780912106,
+            "timestamp": 1780911606,
+            "trace_id": ""
+          },
+          {
+            "address": "bad-actor",
+            "nonce": 1780912107,
+            "timestamp": 1780911606,
+            "trace_id": ""
+          },
+          {
+            "address": "alice",
+            "nonce": 1780912216,
+            "timestamp": 1780911716,
+            "trace_id": ""
+          },
+          {
+            "address": "bad-actor",
+            "nonce": 1780912217,
+            "timestamp": 1780911716,
+            "trace_id": ""
+          },
+          {
+            "address": "alice",
+            "nonce": 1780912440,
+            "timestamp": 1780911940,
+            "trace_id": ""
+          },
+          {
+            "address": "bad-actor",
+            "nonce": 1780912441,
+            "timestamp": 1780911940,
+            "trace_id": ""
+          },
+          {
+            "address": "alice",
+            "nonce": 1780912607,
+            "timestamp": 1780912107,
+            "trace_id": ""
+          },
+          {
+            "address": "bad-actor",
+            "nonce": 1780912608,
+            "timestamp": 1780912108,
+            "trace_id": ""
+          },
+          {
+            "address": "alice",
+            "nonce": 1781175290,
+            "timestamp": 1781175290,
+            "trace_id": ""
+          },
+          {
+            "address": "alice",
+            "nonce": 1234567890,
+            "timestamp": 1781274616,
+            "trace_id": ""
+          },
+          {
+            "address": "alice",
+            "nonce": 1781336841177218800,
+            "timestamp": 1781336841,
+            "trace_id": ""
+          },
+          {
+            "address": "alice",
+            "nonce": 1781337242583125200,
+            "timestamp": 1781337242,
+            "trace_id": ""
+          },
+          {
+            "address": "alice",
+            "nonce": 1781337370258155000,
+            "timestamp": 1781337370,
+            "trace_id": ""
+          },
+          {
+            "address": "alice",
+            "nonce": 1781345210207879000,
+            "timestamp": 1781345210,
+            "trace_id": ""
+          },
+          {
+            "address": "alice",
+            "nonce": 1781345390204279600,
+            "timestamp": 1781345390,
+            "trace_id": ""
+          },
+          {
+            "address": "alice",
+            "nonce": 1781348830459182800,
+            "timestamp": 1781348830,
+            "trace_id": ""
+          },
+          {
+            "address": "alice",
+            "nonce": 999999,
+            "timestamp": 1781348996,
+            "trace_id": ""
+          },
+          {
+            "address": "alice",
+            "nonce": 1781349215563811600,
+            "timestamp": 1781349215,
+            "trace_id": ""
+          },
+          {
+            "address": "alice",
+            "nonce": 1781349500743747800,
+            "timestamp": 1781349500,
+            "trace_id": ""
+          },
+          {
+            "address": "alice",
+            "nonce": 1781349576478968600,
+            "timestamp": 1781349576,
+            "trace_id": ""
+          },
+          {
+            "address": "0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+            "nonce": 1781349626633397500,
+            "timestamp": 1781349626,
+            "trace_id": ""
+          },
+          {
+            "address": "03a7eff502550456255621179b4e8894867855e57094dfe9e3327df6b02c3e29eb",
+            "nonce": 1781349689102151700,
+            "timestamp": 1781349689,
+            "trace_id": ""
+          },
+          {
+            "address": "03611e6397e8484b34cee06e569d40c8ad3cccf1143012904f2efb04755da93218",
+            "nonce": 1781349897802813000,
+            "timestamp": 1781349897,
+            "trace_id": ""
+          },
+          {
+            "address": "024e793ba8a77d5c4b9de2fd305bc75134f53ab108ca469d7703f5f30f79c4d1eb",
+            "nonce": 1781349988775767600,
+            "timestamp": 1781349988,
+            "trace_id": ""
+          },
+          {
+            "address": "027ea9e6c9f5bae21e5e399899c02b590747b3def627007fef41213398329c36cd",
+            "nonce": 1781350066296841700,
+            "timestamp": 1781350066,
+            "trace_id": ""
+          },
+          {
+            "address": "020167d693d04bf8c898052b1076f5fa14c6cade956afe087a41dd00d3824e1409",
+            "nonce": 1781350318770232600,
+            "timestamp": 1781350318,
+            "trace_id": ""
+          },
+          {
+            "address": "alice",
+            "nonce": 1781350432039616800,
+            "timestamp": 1781350432,
+            "trace_id": ""
+          },
+          {
+            "address": "alice",
+            "nonce": 1781350528704302300,
+            "timestamp": 1781350528,
+            "trace_id": ""
+          },
+          {
+            "address": "alice",
+            "nonce": 1781350589131331300,
+            "timestamp": 1781350589,
+            "trace_id": ""
+          },
+          {
+            "address": "alice",
+            "nonce": 1781866603024879000,
+            "timestamp": 1781866603,
+            "trace_id": ""
+          },
+          {
+            "address": "alice",
+            "nonce": 1781866629815449000,
+            "timestamp": 1781866629,
+            "trace_id": ""
+          },
+          {
+            "address": "alice",
+            "nonce": 1781866758858104600,
+            "timestamp": 1781866758,
+            "trace_id": ""
+          },
+          {
+            "address": "alice",
+            "nonce": 1781866817954579700,
+            "timestamp": 1781866817,
+            "trace_id": ""
+          },
+          {
+            "address": "alice",
+            "nonce": 1782564559530055200,
+            "timestamp": 1782564559,
+            "trace_id": ""
+          },
+          {
+            "address": "alice",
+            "nonce": 1782564566852514300,
+            "timestamp": 1782564566,
+            "trace_id": ""
+          }
+        ],
+        "success": true
+      },
+      "evidence_url": "http://localhost:8080/api/nonce/records"
+    },
+    {
+      "name": "chain_integrity",
+      "passed": true,
+      "detail": {
+        "intact": true,
+        "message": "truth store chain is intact — no tampering detected",
+        "success": true
+      },
+      "evidence_url": "http://localhost:8080/api/tantra/chain-integrity"
+    },
+    {
+      "name": "akashic_reconstruction",
+      "passed": true,
+      "detail": {
+        "result": {
+          "chain_intact": true,
+          "final_state_root": "090552612f4e96e0813b1cdda8d6b9c956b8fab4eb5e89da90a7948cdc5c0256",
+          "message": "reconstruction successful — lineage intact",
+          "total_entries": 20,
+          "verified": true
+        },
+        "success": true
+      },
+      "evidence_url": "http://localhost:8080/api/akashic/reconstruct"
+    },
+    {
+      "name": "cluster_state_root_equality",
+      "passed": false,
+      "detail": {
+        "cluster_nodes_env": "http://localhost:8081,http://localhost:8082 ",
+        "node_count": 3,
+        "nodes": [
+          {
+            "block_height": 1,
+            "online": true,
+            "state_root": "090552612f4e96e0813b1cdda8d6b9c956b8fab4eb5e89da90a7948cdc5c0256",
+            "url": "http://localhost:8080 (self)"
+          },
+          {
+            "block_height": 0,
+            "online": false,
+            "state_root": "",
+            "url": "http://localhost:8081"
+          },
+          {
+            "block_height": 0,
+            "online": false,
+            "state_root": "",
+            "url": "http://localhost:8082"
+          }
+        ],
+        "note": {
+          "multi_node": "Set CLUSTER_NODES=http://host:port1,http://host:port2 to add peer nodes"
+        },
+        "online_count": 1,
+        "self_state_root": "090552612f4e96e0813b1cdda8d6b9c956b8fab4eb5e89da90a7948cdc5c0256",
+        "state_root_equal": false,
+        "success": true
+      },
+      "evidence_url": "http://localhost:8080/api/node/cluster-status"
+    },
+    {
+      "name": "convergence_proof",
+      "passed": true,
+      "detail": {
+        "converged": true,
+        "proof": {
+          "akashic_reconstruction": {
+            "chain_intact": true,
+            "final_state_root": "090552612f4e96e0813b1cdda8d6b9c956b8fab4eb5e89da90a7948cdc5c0256",
+            "message": "reconstruction successful — lineage intact",
+            "total_entries": 20,
+            "verified": true
+          },
+          "blockchain": {
+            "block_height": 1,
+            "pending_txs": 0
+          },
+          "bucket_chain": {
+            "intact": true,
+            "record_count": 10
+          },
+          "runtime": {
+            "bypass_paths": 0,
+            "canonical_entry": "POST /api/relay/submit",
+            "execution_path": "Schema → PDV → Governance → Blockchain → Bucket → AKASHIC",
+            "schema_version": "v1",
+            "trace_enforcement": "trace.Context — immutable after injection"
+          }
+        },
+        "success": true,
+        "timestamp": 1782564566
+      },
+      "evidence_url": "http://localhost:8080/api/convergence/proof"
+    }
+  ],
+  "notes": [
+    "SIGNATURE_REJECT (HTTP 403) = Phase 1 cryptography active — correct production behaviour",
+    "Named addresses (alice/bob) are blocked when SIGVERIFY_STRICT_MODE=true",
+    "To test with signed transactions: use sigverify.Sign() from the wallet service"
+  ],
+  "passed": 8,
+  "relay_base": "http://localhost:8080",
+  "sig_mode": "",
+  "timestamp": "2026-06-27T12:49:26Z",
+  "total": 9,
+  "verdict": "PHASE 3 RESILIENCE — 8/9 checks passed"
+}

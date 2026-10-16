@@ -1,0 +1,275 @@
+{
+  "info": {
+    "name": "TANTRA Full Convergence — Blackhole Blockchain",
+    "description": "Full PDV convergence collection. Start services first:\n  Terminal 1: cd core/relay-chain && go run cmd/fraud-service/main.go\n  Terminal 2: cd core/relay-chain && go run cmd/relay/main.go 3000",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Successful Transaction (all hashes match)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "http://localhost:8080/api/relay/submit", "host": ["localhost"], "port": "8080", "path": ["api","relay","submit"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"schema_version\": \"v1\",\n  \"type\": \"token_transfer\",\n  \"from\": \"alice\",\n  \"to\": \"bob\",\n  \"amount\": 100,\n  \"token_id\": \"BHIV\",\n  \"nonce\": 1,\n  \"timestamp\": {{$timestamp}}\n}"
+        }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "const b = pm.response.json();",
+            "pm.test('success=true', () => pm.expect(b.success).to.be.true);",
+            "pm.test('hashes match', () => {",
+            "  pm.expect(b.execution_hash).to.equal(b.validation_hash);",
+            "  pm.expect(b.validation_hash).to.equal(b.replay_hash);",
+            "});",
+            "pm.test('fraud=allow', () => pm.expect(b.fraud_decision).to.equal('allow'));",
+            "pm.test('trace_id present', () => pm.expect(b.trace_id).to.be.a('string').with.lengthOf(16));",
+            "pm.test('schema_version=v1', () => pm.expect(b.schema_version).to.equal('v1'));",
+            "pm.environment.set('last_tx_id', b.transaction_id);",
+            "pm.environment.set('last_trace_id', b.trace_id);"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "2. Rejected — Fraud Block (bad-actor sender)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "http://localhost:8080/api/relay/submit", "host": ["localhost"], "port": "8080", "path": ["api","relay","submit"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"schema_version\": \"v1\",\n  \"type\": \"token_transfer\",\n  \"from\": \"bad-actor\",\n  \"to\": \"bob\",\n  \"amount\": 100,\n  \"token_id\": \"BHIV\",\n  \"nonce\": 1,\n  \"timestamp\": {{$timestamp}}\n}"
+        }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('HTTP 403', () => pm.response.to.have.status(403));",
+            "const b = pm.response.json();",
+            "pm.test('success=false', () => pm.expect(b.success).to.be.false);",
+            "pm.test('error_code=PDV_REJECT', () => pm.expect(b.error_code).to.equal('PDV_REJECT'));",
+            "pm.test('rejection_reason present', () => pm.expect(b.rejection_reason).to.be.a('string'));"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "3. Rejected — Zero Amount (schema violation)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "http://localhost:8080/api/relay/submit", "host": ["localhost"], "port": "8080", "path": ["api","relay","submit"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"schema_version\": \"v1\",\n  \"type\": \"token_transfer\",\n  \"from\": \"alice\",\n  \"to\": \"bob\",\n  \"amount\": 0,\n  \"token_id\": \"BHIV\",\n  \"nonce\": 2,\n  \"timestamp\": {{$timestamp}}\n}"
+        }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+            "const b = pm.response.json();",
+            "pm.test('success=false', () => pm.expect(b.success).to.be.false);",
+            "pm.test('error_code=SCHEMA_VIOLATION', () => pm.expect(b.error_code).to.equal('SCHEMA_VIOLATION'));"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "4. Rejected — Unknown Field (schema violation)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "http://localhost:8080/api/relay/submit", "host": ["localhost"], "port": "8080", "path": ["api","relay","submit"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"schema_version\": \"v1\",\n  \"type\": \"token_transfer\",\n  \"from\": \"alice\",\n  \"to\": \"bob\",\n  \"amount\": 100,\n  \"token_id\": \"BHIV\",\n  \"nonce\": 1,\n  \"timestamp\": {{$timestamp}},\n  \"unknown_field\": \"this should be rejected\"\n}"
+        }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+            "const b = pm.response.json();",
+            "pm.test('SCHEMA_VIOLATION', () => pm.expect(b.error_code).to.equal('SCHEMA_VIOLATION'));"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "5. Rejected — Missing schema_version",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "http://localhost:8080/api/relay/submit", "host": ["localhost"], "port": "8080", "path": ["api","relay","submit"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"type\": \"token_transfer\",\n  \"from\": \"alice\",\n  \"to\": \"bob\",\n  \"amount\": 100,\n  \"token_id\": \"BHIV\",\n  \"nonce\": 1,\n  \"timestamp\": {{$timestamp}}\n}"
+        }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+            "const b = pm.response.json();",
+            "pm.test('SCHEMA_VIOLATION', () => pm.expect(b.error_code).to.equal('SCHEMA_VIOLATION'));"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "6. Verify Transaction On-Chain (Bucket Phase 5)",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/api/tantra/verify?tx_hash={{last_tx_id}}",
+          "host": ["localhost"], "port": "8080",
+          "path": ["api","tantra","verify"],
+          "query": [{ "key": "tx_hash", "value": "{{last_tx_id}}" }]
+        }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "const b = pm.response.json();",
+            "pm.test('found on-chain', () => pm.expect(b.result.on_chain).to.be.true);",
+            "pm.test('hashes_match', () => pm.expect(b.result.hashes_match).to.be.true);"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "7. Verify by trace_id (Bucket Phase 5)",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/api/tantra/verify?trace_id={{last_trace_id}}",
+          "host": ["localhost"], "port": "8080",
+          "path": ["api","tantra","verify"],
+          "query": [{ "key": "trace_id", "value": "{{last_trace_id}}" }]
+        }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "const b = pm.response.json();",
+            "pm.test('found', () => pm.expect(b.result.found).to.be.true);"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "8. Bucket Chain Integrity",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "http://localhost:8080/api/tantra/chain-integrity", "host": ["localhost"], "port": "8080", "path": ["api","tantra","chain-integrity"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "const b = pm.response.json();",
+            "pm.test('chain intact', () => pm.expect(b.intact).to.be.true);"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "9. AKASHIC Trace Continuity (Phase 4)",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/api/akashic/trace?trace_id={{last_trace_id}}",
+          "host": ["localhost"], "port": "8080",
+          "path": ["api","akashic","trace"],
+          "query": [{ "key": "trace_id", "value": "{{last_trace_id}}" }]
+        }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "const b = pm.response.json();",
+            "pm.test('entry found', () => pm.expect(b.success).to.be.true);",
+            "pm.test('trace_id matches', () => pm.expect(b.entry.trace_id).to.equal(pm.environment.get('last_trace_id')));",
+            "pm.test('PDV hashes equal in AKASHIC', () => {",
+            "  pm.expect(b.entry.execution_hash).to.equal(b.entry.validation_hash);",
+            "  pm.expect(b.entry.validation_hash).to.equal(b.entry.replay_hash);",
+            "});"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "10. AKASHIC All Lineage Entries (Phase 4)",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "http://localhost:8080/api/akashic/lineage", "host": ["localhost"], "port": "8080", "path": ["api","akashic","lineage"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "const b = pm.response.json();",
+            "pm.test('entries array', () => pm.expect(b.entries).to.be.an('array'));",
+            "pm.test('count >= 1', () => pm.expect(b.count).to.be.at.least(1));"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "11. AKASHIC Reconstruction Proof (Phase 6)",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "http://localhost:8080/api/akashic/reconstruct", "host": ["localhost"], "port": "8080", "path": ["api","akashic","reconstruct"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "const b = pm.response.json();",
+            "pm.test('verified=true', () => pm.expect(b.result.verified).to.be.true);",
+            "pm.test('chain_intact=true', () => pm.expect(b.result.chain_intact).to.be.true);",
+            "pm.test('final_state_root present', () => pm.expect(b.result.final_state_root).to.be.a('string'));"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "12. All Truth Store Records (audit)",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "http://localhost:8080/api/tantra/records", "host": ["localhost"], "port": "8080", "path": ["api","tantra","records"] }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+            "const b = pm.response.json();",
+            "pm.test('records array', () => pm.expect(b.records).to.be.an('array'));",
+            "pm.test('count >= 1', () => pm.expect(b.count).to.be.at.least(1));"
+          ]
+        }
+      }]
+    }
+  ]
+}

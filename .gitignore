@@ -1,0 +1,94 @@
+# If you prefer the allow list template instead of the deny list, see community template:
+# https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.gitignore
+#
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Code coverage profiles and other test artifacts
+*.out
+coverage.*
+*.coverprofile
+profile.cov//;'./'/'///'
+
+# Dependency directories (remove the comment below to include it)
+# vendor/
+
+# Go workspace file
+go.work
+go.work.sum
+
+# env file
+.env
+.env.production
+
+# TLS private key — never commit
+nginx/certs/key.pem
+
+# BlackHole Blockchain Runtime Files
+blockchain_logs/
+blockchaindb_*/
+*.log
+*.db
+blockchain_state_*.json
+monitoring.log
+
+# Bridge SDK Database Files
+data/
+.data/
+bridge.db
+*.bolt
+*.boltdb
+
+# Smart Contract Files
+contracts/node_modules/
+contracts/.env
+contracts/cache/
+contracts/artifacts/
+contracts/deployments/
+contracts/typechain-types/
+
+# Docker volumes
+data/blockchain/*
+data/mongodb/*
+data/wallet/*
+data/badger/*
+!data/blockchain/.gitkeep
+!data/mongodb/.gitkeep
+!data/wallet/.gitkeep
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Editor/IDE
+.idea/
+.vscode/
+*.iml
+# Reference and backup directories
+reference-shantanu-bridge-work/
+bridge-sdk-backup/
+temp-test-files/
+contracts/node_modules/.bin/mocha.cmd
+
+# Large binaries
+core/relay-chain/blockchain
+core/relay-chain/relay-chain
+
+services/wallet/data/badger/*.vlog
+services/wallet/data/badger/*.mem
+services/wallet/data/badger/
+services/wallet/data/badger/

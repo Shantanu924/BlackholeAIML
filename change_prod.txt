@@ -1,0 +1,60 @@
+BlackHole Bridge SDK Production Readiness Modifications
+
+This document details the modifications implemented to satisfy the production readiness, monitoring, configuration, and security checks for the Bridge SDK.
+
+================================================================================
+1. Test Suite Fixes (signature_test.go)
+================================================================================
+- File Modified: ./bridge-sdk/tests/signature_test.go
+- Change Description:
+  * Modified the assignments to the `Signature` and `PublicKey` fields of the `SignedBridgeMessage` struct inside all unit tests to use raw `[]byte` values instead of hex-encoded string representations.
+  * Added `Nonce: 1` assignments inside test `Transaction` structs so that the parsed transaction nonces match the nonces specified in the message payloads during verification.
+- Rationale:
+  * In the underlying protoc-generated code or stubs (`core/pb_stubs.go`), the signature and public key fields are defined as type `[]byte`. Assinging hex strings directly to them caused Go build compilation errors.
+  * Setting the correct `Nonce` field values in the test transaction instances ensures that the serialized verification payloads match the signed payload nonces, resolving verification failures.
+
+================================================================================
+2. Main Router Integrations & HTTP 400 Enforcement (main_bridge/main.go)
+================================================================================
+- File Modified: ./bridge-sdk/main_bridge/main.go
+- Change Description:
+  * Added registrations for `/relay/eth` and `/relay/sol` handlers (POST method) and `/log/events` (GET method) on the main web server router.
+  * Enhanced HTTP handlers `handleRelayEth` and `handleRelaySol` to return an HTTP status of `400 Bad Request` (`w.WriteHeader(http.StatusBadRequest)`) immediately when invalid-signature, replay-attempts, or unsigned/malformed transaction payloads are submitted.
+- Rationale:
+  * Previously, the relay server endpoints were registered on a temporary router that was created in `main()` but never listened on or served. Registering them on the main router on port `8084` makes the endpoints accessible to REST clients.
+  * Enforcing proper HTTP 400 status codes for missing or invalid signatures satisfies the security requirement to explicitly reject unverified incoming payloads.
+
+================================================================================
+3. CLI Event Stream Parsing (cmd/bridgectl/tail.go)
+================================================================================
+- File Modified: ./bridge-sdk/cmd/bridgectl/tail.go
+- Change Description:
+  * Updated the JSON structure tag mapping for the `TxHash` field in `Event` to `json:"tx_hash"`.
+  * Rewrote JSON decoding in the loop to support reading nested structures (specifically checking for the `"data"` field containing `"events"`, i.e., `{"data":{"events": [...]}}`) in addition to plain arrays.
+- Rationale:
+  * The event payload returned by the server uses `"tx_hash"` for the transaction hash key, and wraps the event logs array under a root `"data"` block. Without these updates, the CLI tool failed to parse the hash value and yielded empty event lists.
+
+================================================================================
+4. Production Configurations & Backup Scripts
+================================================================================
+- Files Created:
+  * [nginx.prod.conf](file:///c:/Users/ASUS/OneDrive/Desktop/BHIV-Tasks/Blackhole_Blockchain-main/block-chain-updated/bridge-sdk/nginx/nginx.prod.conf)
+  * [backup.sh](file:///c:/Users/ASUS/OneDrive/Desktop/BHIV-Tasks/Blackhole_Blockchain-main/block-chain-updated/bridge-sdk/scripts/backup.sh)
+  * [bridge-dashboard.json](file:///c:/Users/ASUS/OneDrive/Desktop/BHIV-Tasks/Blackhole_Blockchain-main/block-chain-updated/bridge-sdk/monitoring/grafana/dashboards/bridge-dashboard.json)
+- Rationale:
+  * The production Nginx reverse proxy load balances HTTP and WebSocket requests across three separate Bridge SDK node instances with SSL setups.
+  * The backup script provides local cron execution to dump database states (pg_dump + BoltDB copies) and archive them with a 7-day retention sweep.
+  * The Grafana configuration file establishes pre-configured panels for visualizing transaction throughput, P50/P90/P99 latency quantile buckets, and active components flags.
+
+================================================================================
+5. Infrastructure Validation Report, Payload Examples & Reflections
+================================================================================
+- Files Created:
+  * [token_approval.json](file:///c:/Users/ASUS/OneDrive/Desktop/BHIV-Tasks/Blackhole_Blockchain-main/block-chain-updated/bridge-sdk/examples/token_approval.json)
+  * [dex_swap.json](file:///c:/Users/ASUS/OneDrive/Desktop/BHIV-Tasks/Blackhole_Blockchain-main/block-chain-updated/bridge-sdk/examples/dex_swap.json)
+  * [CHANGELOG.md](file:///c:/Users/ASUS/OneDrive/Desktop/BHIV-Tasks/Blackhole_Blockchain-main/block-chain-updated/bridge-sdk/CHANGELOG.md)
+  * reflections: [day2.md](file:///c:/Users/ASUS/OneDrive/Desktop/BHIV-Tasks/Blackhole_Blockchain-main/block-chain-updated/bridge-sdk/docs/reflections/shantanu/day2.md), [day3.md](file:///c:/Users/ASUS/OneDrive/Desktop/BHIV-Tasks/Blackhole_Blockchain-main/block-chain-updated/bridge-sdk/docs/reflections/shantanu/day3.md), [day4.md](file:///c:/Users/ASUS/OneDrive/Desktop/BHIV-Tasks/Blackhole_Blockchain-main/block-chain-updated/bridge-sdk/docs/reflections/shantanu/day4.md)
+  * [INFRASTRUCTURE_VALIDATION_REPORT.md](file:///c:/Users/ASUS/OneDrive/Desktop/BHIV-Tasks/Blackhole_Blockchain-main/block-chain-updated/bridge-sdk/docs/INFRASTRUCTURE_VALIDATION_REPORT.md)
+- Rationale:
+  * Structured sample payloads satisfy the data specifications for downstream module processing.
+  * Validation reports and reflection files provide testing telemetry and documentation trace records for deployment hand-offs.

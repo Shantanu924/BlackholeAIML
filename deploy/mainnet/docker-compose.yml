@@ -1,0 +1,537 @@
+version: '3.8'
+
+networks:
+  blackhole-network:
+    external: true
+
+volumes:
+  # Shared volumes
+  letsencrypt:
+  nginx-config:
+  nginx-logs:
+  webroot:
+  bridge-data:
+  bridge-logs:
+  wallet-data:
+  akashic-data:
+  truthstore-data:
+  nonce-data:
+  mongodb-data:
+
+  # Node volumes
+  node1-data:
+  node1-logs:
+  node1-identity:
+  node2-data:
+  node2-logs:
+  node2-identity:
+  node3-data:
+  node3-logs:
+  node3-identity:
+  node4-data:
+  node4-logs:
+  node4-identity:
+  node5-data:
+  node5-logs:
+  node5-identity:
+
+services:
+  # Node 1 (Bootstrap/Seed Node)
+  node1:
+    image: bhiv/blackhole-node:${IMG_TAG:-latest}
+    build:
+      context: ../../
+      dockerfile: deploy/mainnet/Dockerfile.blockchain
+    container_name: blackhole-node-1
+    restart: unless-stopped
+    user: root
+    depends_on:
+      pdv-exec:
+        condition: service_healthy
+      pdv-val:
+        condition: service_healthy
+      pdv-replay:
+        condition: service_healthy
+      fraud-service:
+        condition: service_healthy
+      nonce-coord:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+      - "8545:8545"
+      - "30303:30303"
+    environment:
+      - NODE_NAME=node1
+      - NODE_ENV=mainnet
+      - LOG_LEVEL=info
+      - P2P_PORT=30303
+      - RPC_PORT=8545
+      - HTTP_PORT=8080
+      - NODE_KEY=node1.key
+      - IS_BOOTNODE=true
+      - DOCKER_MODE=true
+      - PDV_STRICT_MODE=false
+      - SARATHI_FAIL_CLOSED=false
+      - SARATHI_URL=http://fraud-service:9091/api/fraud/check
+      - PDV_EXECUTION_AGENT_URL=http://pdv-exec:9101/pdv/execute
+      - PDV_VALIDATION_AGENT_URL=http://pdv-val:9102/pdv/validate
+      - PDV_REPLAY_AGENT_URL=http://pdv-replay:9103/pdv/replay
+      - NONCE_COORDINATOR_URL=http://nonce-coord:9200
+      - AKASHIC_PATH=/data/akashic/akashic_lineage.jsonl
+      - TRUTHSTORE_PATH=/data/truthstore/tantra_truth.jsonl
+    volumes:
+      - node1-data:/data/blockchain
+      - node1-logs:/app/logs
+      - node1-identity:/app/identity
+      - akashic-data:/data/akashic
+      - truthstore-data:/data/truthstore
+    networks:
+      - blackhole-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # Node 2
+  node2:
+    image: bhiv/blackhole-node:${IMG_TAG:-latest}
+    build:
+      context: ../../
+      dockerfile: deploy/mainnet/Dockerfile.blockchain
+    container_name: blackhole-node-2
+    restart: unless-stopped
+    user: root
+    depends_on:
+      node1:
+        condition: service_healthy
+      pdv-exec:
+        condition: service_healthy
+      pdv-val:
+        condition: service_healthy
+      pdv-replay:
+        condition: service_healthy
+      fraud-service:
+        condition: service_healthy
+      nonce-coord:
+        condition: service_healthy
+    ports:
+      - "8081:8080"
+      - "8546:8545"
+      - "30304:30303"
+    environment:
+      - NODE_NAME=node2
+      - NODE_ENV=mainnet
+      - LOG_LEVEL=info
+      - P2P_PORT=30303
+      - RPC_PORT=8545
+      - HTTP_PORT=8080
+      - BOOTNODES_HTTP=http://node1:8080/api/p2p/info
+      - NODE_KEY=node2.key
+      - DOCKER_MODE=true
+      - PDV_STRICT_MODE=false
+      - SARATHI_FAIL_CLOSED=false
+      - SARATHI_URL=http://fraud-service:9091/api/fraud/check
+      - PDV_EXECUTION_AGENT_URL=http://pdv-exec:9101/pdv/execute
+      - PDV_VALIDATION_AGENT_URL=http://pdv-val:9102/pdv/validate
+      - PDV_REPLAY_AGENT_URL=http://pdv-replay:9103/pdv/replay
+      - NONCE_COORDINATOR_URL=http://nonce-coord:9200
+      - AKASHIC_PATH=/data/akashic/akashic_lineage.jsonl
+      - TRUTHSTORE_PATH=/data/truthstore/tantra_truth.jsonl
+    volumes:
+      - node2-data:/data/blockchain
+      - node2-logs:/app/logs
+      - node2-identity:/app/identity
+      - akashic-data:/data/akashic
+      - truthstore-data:/data/truthstore
+    networks:
+      - blackhole-network
+
+  # Node 3
+  node3:
+    image: bhiv/blackhole-node:${IMG_TAG:-latest}
+    build:
+      context: ../../
+      dockerfile: deploy/mainnet/Dockerfile.blockchain
+    container_name: blackhole-node-3
+    restart: unless-stopped
+    user: root
+    depends_on:
+      node1:
+        condition: service_healthy
+      pdv-exec:
+        condition: service_healthy
+      pdv-val:
+        condition: service_healthy
+      pdv-replay:
+        condition: service_healthy
+      fraud-service:
+        condition: service_healthy
+      nonce-coord:
+        condition: service_healthy
+    ports:
+      - "8082:8080"
+      - "8547:8545"
+      - "30305:30303"
+    environment:
+      - NODE_NAME=node3
+      - NODE_ENV=mainnet
+      - LOG_LEVEL=info
+      - P2P_PORT=30303
+      - RPC_PORT=8545
+      - HTTP_PORT=8080
+      - BOOTNODES_HTTP=http://node1:8080/api/p2p/info
+      - NODE_KEY=node3.key
+      - DOCKER_MODE=true
+      - PDV_STRICT_MODE=false
+      - SARATHI_FAIL_CLOSED=false
+      - SARATHI_URL=http://fraud-service:9091/api/fraud/check
+      - PDV_EXECUTION_AGENT_URL=http://pdv-exec:9101/pdv/execute
+      - PDV_VALIDATION_AGENT_URL=http://pdv-val:9102/pdv/validate
+      - PDV_REPLAY_AGENT_URL=http://pdv-replay:9103/pdv/replay
+      - NONCE_COORDINATOR_URL=http://nonce-coord:9200
+      - AKASHIC_PATH=/data/akashic/akashic_lineage.jsonl
+      - TRUTHSTORE_PATH=/data/truthstore/tantra_truth.jsonl
+    volumes:
+      - node3-data:/data/blockchain
+      - node3-logs:/app/logs
+      - node3-identity:/app/identity
+      - akashic-data:/data/akashic
+      - truthstore-data:/data/truthstore
+    networks:
+      - blackhole-network
+
+  # Node 4
+  node4:
+    image: bhiv/blackhole-node:${IMG_TAG:-latest}
+    build:
+      context: ../../
+      dockerfile: deploy/mainnet/Dockerfile.blockchain
+    container_name: blackhole-node-4
+    restart: unless-stopped
+    user: root
+    depends_on:
+      node1:
+        condition: service_healthy
+      pdv-exec:
+        condition: service_healthy
+      pdv-val:
+        condition: service_healthy
+      pdv-replay:
+        condition: service_healthy
+      fraud-service:
+        condition: service_healthy
+      nonce-coord:
+        condition: service_healthy
+    ports:
+      - "8083:8080"
+      - "8548:8545"
+      - "30306:30303"
+    environment:
+      - NODE_NAME=node4
+      - NODE_ENV=mainnet
+      - LOG_LEVEL=info
+      - P2P_PORT=30303
+      - RPC_PORT=8545
+      - HTTP_PORT=8080
+      - BOOTNODES_HTTP=http://node1:8080/api/p2p/info
+      - NODE_KEY=node4.key
+      - DOCKER_MODE=true
+      - PDV_STRICT_MODE=false
+      - SARATHI_FAIL_CLOSED=false
+      - SARATHI_URL=http://fraud-service:9091/api/fraud/check
+      - PDV_EXECUTION_AGENT_URL=http://pdv-exec:9101/pdv/execute
+      - PDV_VALIDATION_AGENT_URL=http://pdv-val:9102/pdv/validate
+      - PDV_REPLAY_AGENT_URL=http://pdv-replay:9103/pdv/replay
+      - NONCE_COORDINATOR_URL=http://nonce-coord:9200
+      - AKASHIC_PATH=/data/akashic/akashic_lineage.jsonl
+      - TRUTHSTORE_PATH=/data/truthstore/tantra_truth.jsonl
+    volumes:
+      - node4-data:/data/blockchain
+      - node4-logs:/app/logs
+      - node4-identity:/app/identity
+      - akashic-data:/data/akashic
+      - truthstore-data:/data/truthstore
+    networks:
+      - blackhole-network
+
+  # Node 5
+  node5:
+    image: bhiv/blackhole-node:${IMG_TAG:-latest}
+    build:
+      context: ../../
+      dockerfile: deploy/mainnet/Dockerfile.blockchain
+    container_name: blackhole-node-5
+    restart: unless-stopped
+    user: root
+    depends_on:
+      node1:
+        condition: service_healthy
+      pdv-exec:
+        condition: service_healthy
+      pdv-val:
+        condition: service_healthy
+      pdv-replay:
+        condition: service_healthy
+      fraud-service:
+        condition: service_healthy
+      nonce-coord:
+        condition: service_healthy
+    ports:
+      - "8084:8080"
+      - "8549:8545"
+      - "30307:30303"
+    environment:
+      - NODE_NAME=node5
+      - NODE_ENV=mainnet
+      - LOG_LEVEL=info
+      - P2P_PORT=30303
+      - RPC_PORT=8545
+      - HTTP_PORT=8080
+      - BOOTNODES_HTTP=http://node1:8080/api/p2p/info
+      - NODE_KEY=node5.key
+      - DOCKER_MODE=true
+      - PDV_STRICT_MODE=false
+      - SARATHI_FAIL_CLOSED=false
+      - SARATHI_URL=http://fraud-service:9091/api/fraud/check
+      - PDV_EXECUTION_AGENT_URL=http://pdv-exec:9101/pdv/execute
+      - PDV_VALIDATION_AGENT_URL=http://pdv-val:9102/pdv/validate
+      - PDV_REPLAY_AGENT_URL=http://pdv-replay:9103/pdv/replay
+      - NONCE_COORDINATOR_URL=http://nonce-coord:9200
+      - AKASHIC_PATH=/data/akashic/akashic_lineage.jsonl
+      - TRUTHSTORE_PATH=/data/truthstore/tantra_truth.jsonl
+    volumes:
+      - node5-data:/data/blockchain
+      - node5-logs:/app/logs
+      - node5-identity:/app/identity
+      - akashic-data:/data/akashic
+      - truthstore-data:/data/truthstore
+    networks:
+      - blackhole-network
+
+  # PDV Agent — ExecutionAgent
+  pdv-exec:
+    image: bhiv/blackhole-node:${IMG_TAG:-latest}
+    build:
+      context: ../../
+      dockerfile: deploy/mainnet/Dockerfile.blockchain
+    container_name: blackhole-pdv-exec
+    restart: unless-stopped
+    entrypoint: ["/app/pdv-agent", "-port", "9101", "-agent", "ExecutionAgent"]
+    ports:
+      - "9101:9101"
+    networks:
+      - blackhole-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9101/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # PDV Agent — ValidationAgent
+  pdv-val:
+    image: bhiv/blackhole-node:${IMG_TAG:-latest}
+    build:
+      context: ../../
+      dockerfile: deploy/mainnet/Dockerfile.blockchain
+    container_name: blackhole-pdv-val
+    restart: unless-stopped
+    entrypoint: ["/app/pdv-agent", "-port", "9102", "-agent", "ValidationAgent"]
+    ports:
+      - "9102:9102"
+    networks:
+      - blackhole-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9102/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # PDV Agent — ReplayAgent
+  pdv-replay:
+    image: bhiv/blackhole-node:${IMG_TAG:-latest}
+    build:
+      context: ../../
+      dockerfile: deploy/mainnet/Dockerfile.blockchain
+    container_name: blackhole-pdv-replay
+    restart: unless-stopped
+    entrypoint: ["/app/pdv-agent", "-port", "9103", "-agent", "ReplayAgent"]
+    ports:
+      - "9103:9103"
+    networks:
+      - blackhole-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9103/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # Nonce Coordinator
+  nonce-coord:
+    image: bhiv/blackhole-node:${IMG_TAG:-latest}
+    build:
+      context: ../../
+      dockerfile: deploy/mainnet/Dockerfile.blockchain
+    container_name: blackhole-nonce-coord
+    restart: unless-stopped
+    entrypoint: ["/app/nonce-coord", "-port", "9200", "-ledger", "/data/nonce/global_nonce_ledger.jsonl"]
+    ports:
+      - "9200:9200"
+    volumes:
+      - nonce-data:/data/nonce
+    networks:
+      - blackhole-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9200/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # Sarathi Fraud Service
+  fraud-service:
+    image: bhiv/blackhole-node:${IMG_TAG:-latest}
+    build:
+      context: ../../
+      dockerfile: deploy/mainnet/Dockerfile.blockchain
+    container_name: blackhole-fraud-service
+    restart: unless-stopped
+    entrypoint: ["/app/fraud-service"]
+    ports:
+      - "9091:9091"
+    networks:
+      - blackhole-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9091/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # MongoDB for Wallet Service
+  mongodb:
+    image: mongo:6
+    container_name: blackhole-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb-data:/data/db
+    networks:
+      - blackhole-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  # Bridge Service
+  bridge:
+    image: bhiv/blackhole-bridge:${IMG_TAG:-latest}
+    build:
+      context: ../../bridge-sdk
+      dockerfile: Dockerfile.bridge
+    container_name: blackhole-bridge
+    command: ["./bridge-sdk"]
+    ports:
+      - "8090:8084"   # Bridge dashboard & API
+      - "9090:9090"   # gRPC & Relay server
+    environment:
+      - NODE_ENV=mainnet
+      - LOG_LEVEL=info
+      - PORT=8084
+      - USE_REAL_BLOCKCHAIN_LISTENERS=true
+      - RELAY_PORT=9090
+      - DATABASE_PATH=/app/data/bridge.db
+      - LOG_FILE=/app/logs/bridge.log
+      - BLOCKCHAIN_RPC_URL=http://node1:8545
+      - LOCAL_RPC_URL=http://blackhole-node-1:8545
+    volumes:
+      - bridge-data:/app/data
+      - bridge-logs:/app/logs
+    networks:
+      - blackhole-network
+    restart: unless-stopped
+    depends_on:
+      - node1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8084/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Wallet Service
+  wallet:
+    image: bhiv/blackhole-wallet:${IMG_TAG:-latest}
+    build:
+      context: ../../services/wallet
+      dockerfile: Dockerfile
+    container_name: blackhole-wallet
+    environment:
+      - NODE_ENV=production
+      - PORT=9000
+      - REACT_APP_BLOCKCHAIN_API_URL=http://blackhole-node-1:8080
+      - REACT_APP_BRIDGE_API_URL=http://blackhole-bridge:8084
+      - MONGODB_URI=mongodb://mongodb:27017/blackhole_wallet
+    volumes:
+      - wallet-data:/app/build
+    networks:
+      - blackhole-network
+    ports:
+      - "9000:9000"
+    restart: unless-stopped
+    depends_on:
+      - bridge
+      - mongodb
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: blackhole-nginx-mainnet
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - nginx-config:/etc/nginx/conf.d
+      - nginx-logs:/var/log/nginx
+      - letsencrypt:/etc/letsencrypt
+      - webroot:/var/www/html
+      - ../../wallet/build:/var/www/wallet:ro
+    networks:
+      - blackhole-network
+    restart: unless-stopped
+    depends_on:
+      - bridge
+      - wallet
+
+  # Certbot for SSL Certificates
+  certbot:
+    image: certbot/certbot:latest
+    container_name: blackhole-certbot-mainnet
+    volumes:
+      - letsencrypt:/etc/letsencrypt
+      - nginx-config:/etc/nginx/conf.d
+      - webroot:/var/www/html
+    networks:
+      - blackhole-network
+    command: >
+          sh -c "mkdir -p /etc/letsencrypt/live/blackhole-mainnet.com && \
+          openssl req -x509 -nodes -newkey rsa:4096 \
+          -keyout /etc/letsencrypt/live/blackhole-mainnet.com/privkey.pem \
+          -out /etc/letsencrypt/live/blackhole-mainnet.com/fullchain.pem \
+          -days 365 \
+          -subj '/CN=blackhole-mainnet.com' && \
+          certbot certonly --staging --webroot --webroot-path=/var/www/html \
+          --email admin@blackhole.com --agree-tos --no-eff-email \
+          -d blackhole-mainnet.com --keep-until-expiring --non-interactive \
+          --config-dir /etc/letsencrypt --work-dir /var/lib/letsencrypt \
+          --logs-dir /var/log/letsencrypt"
+    depends_on:
+      - nginx

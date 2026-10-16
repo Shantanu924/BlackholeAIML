@@ -1,0 +1,37 @@
+# Dockerfile.pdv-agent
+# Builds a minimal PDV agent container.
+# Each agent runs as a separate container — true cross-container distributed PDV.
+#
+# Build: docker build -f Dockerfile.pdv-agent -t pdv-agent .
+# Run:   docker run -e AGENT_NAME=ExecutionAgent -e AGENT_PORT=9101 -p 9101:9101 pdv-agent
+
+FROM golang:1.24-alpine AS builder
+
+WORKDIR /build
+
+# Copy go.mod and go.sum first for layer caching
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy source
+COPY . .
+
+# Build the pdv-agent binary
+RUN CGO_ENABLED=0 GOOS=linux go build -o pdv-agent ./cmd/pdv-agent/
+
+# Final minimal image
+FROM alpine:3.19
+
+RUN apk add --no-cache wget ca-certificates
+
+WORKDIR /app
+COPY --from=builder /build/pdv-agent .
+
+# AGENT_NAME and AGENT_PORT are set via docker-compose environment
+ENV AGENT_NAME=ExecutionAgent
+ENV AGENT_PORT=9101
+
+EXPOSE ${AGENT_PORT}
+
+# Entrypoint reads env vars
+CMD ["/bin/sh", "-c", "/app/pdv-agent -port ${AGENT_PORT} -agent ${AGENT_NAME}"]

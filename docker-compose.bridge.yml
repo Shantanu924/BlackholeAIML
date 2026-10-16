@@ -1,0 +1,62 @@
+
+networks:
+  blackhole-network:
+    external: true
+    name: blackhole-network
+
+volumes:
+  bridge-data:
+    driver: local
+  bridge-logs:
+    driver: local
+  blockchain_data:
+    name: blackhole-blockchain_blockchain_data
+    external: true
+
+services:
+  bridge:
+    build:
+      context: ./bridge-sdk
+      dockerfile: Dockerfile.bridge
+    container_name: blackhole-bridge
+    command: ["./bridge-sdk"]
+    ports:
+      - "8084:8084"   # Bridge dashboard & API
+      - "9092:9090"   # gRPC & Relay server (9092 on host)
+    environment:
+      - DOCKER_MODE=true
+      - BLOCKCHAIN_API_URL=http://blackhole-node-1:8080
+      - WALLET_API_URL=http://blackhole-wallet:9000
+      - NODE_ENV=production
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - PORT=8084
+      - USE_REAL_BLOCKCHAIN_LISTENERS=true
+      - RELAY_PORT=9090
+      - DATABASE_PATH=/app/data/bridge_v4.db
+      - LOG_FILE=/app/logs/bridge.log
+      - BLOCKCHAIN_IDENTITY_DIR=/data/blockchain
+    volumes:
+      - bridge-data:/app/data
+      - bridge-logs:/app/logs
+      - blockchain_data:/data/blockchain:ro
+    networks:
+      - blackhole-network
+    user: root
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8084/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  ui-bridge-dashboard:
+    build:
+      context: ./ui/bridge-dashboard
+      dockerfile: Dockerfile
+    container_name: ui-bridge-dashboard
+    ports:
+      - "8103:8103"
+    networks:
+      - blackhole-network
+    restart: unless-stopped

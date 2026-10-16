@@ -1,0 +1,32 @@
+# Dockerfile.relay
+# Builds the BlackHole Blockchain relay node container.
+#
+# Build: docker build -f Dockerfile.relay -t blackhole-relay .
+# Run:   docker run -p 8080:8080 -p 3000:3000 blackhole-relay
+
+FROM golang:1.24-alpine AS builder
+
+WORKDIR /build
+
+RUN apk add --no-cache gcc musl-dev
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+
+RUN CGO_ENABLED=1 GOOS=linux go build -o relay-node ./cmd/relay/
+
+FROM alpine:3.19
+
+RUN apk add --no-cache ca-certificates libc6-compat
+
+WORKDIR /app
+COPY --from=builder /build/relay-node .
+
+ENV DOCKER_MODE=true
+ENV BLOCKCHAIN_DOCKER=true
+
+EXPOSE 8080 3000
+
+CMD ["/app/relay-node", "3000"]

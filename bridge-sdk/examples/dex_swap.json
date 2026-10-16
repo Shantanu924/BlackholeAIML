@@ -1,0 +1,28 @@
+{
+  "id": "tx_dex_swap_482",
+  "hash": "0x4e3d2c1b0a9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1f0e9d8c7b6a5f4e3d",
+  "source_chain": "ethereum",
+  "dest_chain": "solana",
+  "source_address": "0x742d35Cc6634C0532925a3b8D4C9db96590c6C87",
+  "dest_address": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+  "amount": "100.00",
+  "token_symbol": "USDC",
+  "status": "TRANSACTION_STATUS_COMPLETED",
+  "created_at": 1751021200,
+  "completed_at": 1751021215,
+  "confirmations": 12,
+  "block_number": 18520412,
+  "gas_used": "125000",
+  "gas_price": "28000000000",
+  "source_module": "DEX",
+  "topic": "DEXSwap",
+  "message_version": "v1alpha1",
+  "meta": {
+    "pair": "USDC/USDT",
+    "amountIn": "100.00",
+    "amountOut": "99.92",
+    "slippage": "0.5%",
+    "pool_address": "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
+    "execution_routing": "uniswap_v3"
+  }
+}

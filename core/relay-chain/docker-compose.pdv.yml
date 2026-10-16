@@ -1,0 +1,109 @@
+version: "3.8"
+
+# Cross-Host Distributed PDV — Scope 1
+#
+# Topology:
+#   pdv-exec    — ExecutionAgent  on port 9101 (container: pdv-exec)
+#   pdv-val     — ValidationAgent on port 9102 (container: pdv-val)
+#   pdv-replay  — ReplayAgent     on port 9103 (container: pdv-replay)
+#   relay       — Relay node      on port 8080 (container: relay)
+#
+# Each PDV agent runs in its own container — separate OS process, separate
+# network namespace, separate filesystem. This is true cross-container
+# distributed PDV, not same-process goroutines.
+#
+# Network: pdv-net (bridge) — agents communicate over Docker bridge network.
+#
+# Run:
+#   docker-compose -f docker-compose.pdv.yml up --build
+#
+# Proof:
+#   All 3 agents independently compute the same hash for the same payload.
+#   node_A_hash == node_B_hash == node_C_hash
+#   Any agent failure → DISTRIBUTED_PDV_REJECT (PDV_STRICT_MODE=true by default)
+
+networks:
+  pdv-net:
+    driver: bridge
+
+services:
+  pdv-exec:
+    build:
+      context: .
+      dockerfile: Dockerfile.pdv-agent
+    container_name: pdv-exec
+    environment:
+      - AGENT_NAME=ExecutionAgent
+      - AGENT_PORT=9101
+    ports:
+      - "9101:9101"
+    networks:
+      - pdv-net
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:9101/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  pdv-val:
+    build:
+      context: .
+      dockerfile: Dockerfile.pdv-agent
+    container_name: pdv-val
+    environment:
+      - AGENT_NAME=ValidationAgent
+      - AGENT_PORT=9102
+    ports:
+      - "9102:9102"
+    networks:
+      - pdv-net
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:9102/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  pdv-replay:
+    build:
+      context: .
+      dockerfile: Dockerfile.pdv-agent
+    container_name: pdv-replay
+    environment:
+      - AGENT_NAME=ReplayAgent
+      - AGENT_PORT=9103
+    ports:
+      - "9103:9103"
+    networks:
+      - pdv-net
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:9103/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  relay:
+    build:
+      context: .
+      dockerfile: Dockerfile.relay
+    container_name: relay
+    environment:
+      # PDV agents — cross-container URLs (container names resolve via Docker DNS)
+      - PDV_EXECUTION_AGENT_URL=http://pdv-exec:9101/pdv/execute
+      - PDV_VALIDATION_AGENT_URL=http://pdv-val:9102/pdv/validate
+      - PDV_REPLAY_AGENT_URL=http://pdv-replay:9103/pdv/replay
+      # Production-safe defaults (all ON by default — no env vars needed)
+      # To run in dev mode: set PDV_STRICT_MODE=false etc.
+      - DOCKER_MODE=true
+      - BLOCKCHAIN_DOCKER=true
+    ports:
+      - "8080:8080"
+      - "3000:3000"
+    networks:
+      - pdv-net
+    depends_on:
+      pdv-exec:
+        condition: service_healthy
+      pdv-val:
+        condition: service_healthy
+      pdv-replay:
+        condition: service_healthy
